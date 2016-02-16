@@ -270,16 +270,6 @@
             android:name="com.umeng.update.UpdateDialogActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
-
-        <activity
-            android:name="com.tencent.connect.common.AssistActivity"
-            android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-
-        <activity
-            android:name="com.renn.rennsdk.oauth.OAuthActivity"
-            android:configChanges="orientation|navigation|keyboardHidden" />
-
         <meta-data
             android:name="api_key"
             android:value="unkDGrSxE8nGEYz7Ne9p0RYG" />

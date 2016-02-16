@@ -340,6 +340,9 @@ public class MainActivity extends BaseActivity implements IUploadImageView {
             case Constants.CODE_CHANGE_COMPANY:
                 nv.getMenu().getItem(currentItem).setChecked(true);
                 if (resultCode == RESULT_OK) {
+                    if (drawer.isDrawerOpen(GravityCompat.START)) {
+                        drawer.closeDrawer(GravityCompat.START);
+                    }
                     recreate();
                 }
                 break;

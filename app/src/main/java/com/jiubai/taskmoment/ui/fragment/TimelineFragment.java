@@ -288,7 +288,7 @@ public class TimelineFragment extends Fragment implements ITimelineView,IUploadI
         // 弹出键盘
         UtilBox.toggleSoftInput(ll_comment, true);
 
-        appBarLayout.setExpanded(false, true);
+        appBarLayout.setExpanded(false, false);
 
         Button btn_send = (Button) ll_comment.findViewById(R.id.btn_comment_send);
         btn_send.setOnClickListener(v -> {
@@ -327,6 +327,8 @@ public class TimelineFragment extends Fragment implements ITimelineView,IUploadI
         }
 
         ll_audit.setVisibility(View.VISIBLE);
+
+        appBarLayout.setExpanded(false, true);
 
         final int[] audit_result = {3};
         RadioGroup radioGroup = (RadioGroup) ll_audit.findViewById(R.id.rg_audit);

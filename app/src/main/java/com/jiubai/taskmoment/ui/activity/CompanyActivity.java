@@ -68,12 +68,11 @@ public class CompanyActivity extends BaseActivity {
 
     private static ProgressDialog progressDialog;
     private SectionsPagerAdapter adapter;
+    private static boolean isLogin = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        UtilBox.setStatusBarTint(this, R.color.colorPrimaryDark);
 
         setContentView(R.layout.aty_company);
 
@@ -87,6 +86,8 @@ public class CompanyActivity extends BaseActivity {
      */
     private void initView() {
         initToolbar();
+
+        isLogin = getIntent().getBooleanExtra("isLogin", false);
 
         adapter = new SectionsPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(adapter);
@@ -348,7 +349,7 @@ public class CompanyActivity extends BaseActivity {
         @Override
         public void onGetMyCompanyResult(String result, String info) {
             if (Constants.SUCCESS.equals(result)) { // 获取成功
-                rv_myCompany.setAdapter(new CompanyAdapter(getActivity(), info));
+                rv_myCompany.setAdapter(new CompanyAdapter(getActivity(), info, isLogin));
                 rv_myCompany.setLayoutManager(new LinearLayoutManager(getActivity()));
                 rv_myCompany.setItemAnimator(new DefaultItemAnimator());
             } else if (Constants.EXPIRE.equals(result)) { // 登录信息过期
@@ -363,7 +364,7 @@ public class CompanyActivity extends BaseActivity {
         @Override
         public void onGetJoinedCompanyResult(String result, String info) {
             if (Constants.SUCCESS.equals(result)) {
-                rv_joinedCompany.setAdapter(new CompanyAdapter(getActivity(), info));
+                rv_joinedCompany.setAdapter(new CompanyAdapter(getActivity(), info, isLogin));
                 rv_joinedCompany.setLayoutManager(new LinearLayoutManager(getActivity()));
                 rv_joinedCompany.setItemAnimator(new DefaultItemAnimator());
             } else if (Constants.FAILED.equals(result)) {

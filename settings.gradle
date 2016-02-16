@@ -1,1 +1,1 @@
-include ':MediaSDK', ':app', ':multi-image-selector', ':social_sdk_library_project'
+include ':MediaSDK', ':app', ':multi-image-selector'

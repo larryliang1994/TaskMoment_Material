@@ -12,7 +12,6 @@
             <option value="$PROJECT_DIR$/MediaSDK" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/multi-image-selector" />
-            <option value="$PROJECT_DIR$/social_sdk_library_project" />
           </set>
         </option>
       </GradleProjectSettings>

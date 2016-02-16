@@ -35,10 +35,13 @@ import butterknife.ButterKnife;
 public class CompanyAdapter extends RecyclerView.Adapter<CompanyAdapter.ViewHolder> {
     private List<Company> companyList;
     private Context context;
+    private boolean isLogin = false;
 
-    public CompanyAdapter(Context context, String companyInfo) {
+    public CompanyAdapter(Context context, String companyInfo, boolean isLogin) {
         try {
             this.context = context;
+
+            this.isLogin = isLogin;
 
             companyList = new ArrayList<>();
             companyList.clear();
@@ -98,8 +101,10 @@ public class CompanyAdapter extends RecyclerView.Adapter<CompanyAdapter.ViewHold
             editor.putString(Constants.SP_KEY_COMPANY_CREATOR, Config.COMPANY_CREATOR);
             editor.apply();
 
-//            Intent intent = new Intent(context, MainActivity.class);
-//            context.startActivity(intent);
+            if (isLogin) {
+                Intent intent = new Intent(context, MainActivity.class);
+                context.startActivity(intent);
+            }
             ((Activity) context).setResult(Activity.RESULT_OK);
             ((Activity) context).finish();
         });

@@ -84,5 +84,5 @@ public class Constants {
 
     public static final int REQUEST_TIMEOUT = 10000;
 
-    public static final String SHARE_TEXT = "任务圈 http://adm.jiubaiwang.cn/WebSite/20055/uploadfile/webeditor2/android/TaskMoment.apk";
+    public static final String SHARE_TEXT = "任务圈 http://adm.jiubaiwang.cn/WebSite/20055/uploadfile/webeditor2/android/TaskMoment_Material.apk";
 }

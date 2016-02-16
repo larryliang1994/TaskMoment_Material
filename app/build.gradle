@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.jiubai.taskmoment"
-        minSdkVersion 16
+        minSdkVersion 14
         targetSdkVersion 23
         versionCode 1000
         versionName "1.8.0"
@@ -74,14 +74,12 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile project(':MediaSDK')
     compile project(':multi-image-selector')
-    compile project(':social_sdk_library_project')
     compile files('src/main/jniLibs/ksoap2-android-assembly-2.5.2-jar-with-dependencies.jar')
     compile files('src/main/jniLibs/oss-0.2.2-javadoc.jar')
     compile files('src/main/jniLibs/oss-0.2.2.jar')
     compile files('src/main/jniLibs/photoview.jar')
     compile files('src/main/jniLibs/Volley.jar')
     compile files('src/main/jniLibs/pushservice-4.5.1.8.jar')
-    compile files('src/main/jniLibs/easyandroidanimationslibrary-v0.5.jar')
     compile files('src/main/jniLibs/com.umeng.message.lib_v2.5.0.jar')
     compile 'com.android.support:design:23.1.1'
     compile 'com.android.support:cardview-v7:23.1.1'

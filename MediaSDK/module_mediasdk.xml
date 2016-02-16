@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_mediasdk" default="compile.module.mediasdk">
+  <dirname property="module.mediasdk.basedir" file="${ant.file.module_mediasdk}"/>
+  
+  <property name="module.jdk.home.mediasdk" value="${jdk.home.android_api_23_platform}"/>
+  <property name="module.jdk.bin.mediasdk" value="${jdk.bin.android_api_23_platform}"/>
+  <property name="module.jdk.classpath.mediasdk" value="jdk.classpath.android_api_23_platform"/>
+  
+  <property name="compiler.args.mediasdk" value="-encoding UTF-8 -source 1.7 ${compiler.args}"/>
+  
+  <property name="mediasdk.output.dir" value="${module.mediasdk.basedir}/build/intermediates/classes/debug"/>
+  <property name="mediasdk.testoutput.dir" value="${module.mediasdk.basedir}/build/intermediates/classes/androidTest/debug"/>
+  
+  <path id="mediasdk.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="mediasdk.module.production.classpath">
+    <path refid="${module.jdk.classpath.mediasdk}"/>
+  </path>
+  
+  <path id="mediasdk.runtime.production.module.classpath">
+    <pathelement location="${mediasdk.output.dir}"/>
+  </path>
+  
+  <path id="mediasdk.module.classpath">
+    <path refid="${module.jdk.classpath.mediasdk}"/>
+    <pathelement location="${mediasdk.output.dir}"/>
+  </path>
+  
+  <path id="mediasdk.runtime.module.classpath">
+    <pathelement location="${mediasdk.testoutput.dir}"/>
+    <pathelement location="${mediasdk.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.mediasdk">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.mediasdk">
+    <patternset refid="excluded.from.module.mediasdk"/>
+  </patternset>
+  
+  <path id="mediasdk.module.sourcepath">
+    <dirset dir="${module.mediasdk.basedir}">
+      <include name="build/generated/source/r/debug"/>
+      <include name="build/generated/source/aidl/debug"/>
+      <include name="build/generated/source/buildConfig/debug"/>
+      <include name="build/generated/source/rs/debug"/>
+      <include name="build/generated/res/rs/debug"/>
+      <include name="res"/>
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  <path id="mediasdk.module.test.sourcepath">
+    <dirset dir="${module.mediasdk.basedir}">
+      <include name="build/generated/source/r/androidTest/debug"/>
+      <include name="build/generated/source/aidl/androidTest/debug"/>
+      <include name="build/generated/source/buildConfig/androidTest/debug"/>
+      <include name="build/generated/source/rs/androidTest/debug"/>
+      <include name="build/generated/res/rs/androidTest/debug"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.mediasdk" depends="compile.module.mediasdk.production,compile.module.mediasdk.tests" description="Compile module MediaSDK"/>
+  
+  <target name="compile.module.mediasdk.production" depends="register.custom.compilers" description="Compile module MediaSDK; production classes">
+    <mkdir dir="${mediasdk.output.dir}"/>
+    <javac2 destdir="${mediasdk.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.mediasdk}/javac">
+      <compilerarg line="${compiler.args.mediasdk}"/>
+      <bootclasspath refid="mediasdk.module.bootclasspath"/>
+      <classpath refid="mediasdk.module.production.classpath"/>
+      <src refid="mediasdk.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.mediasdk"/>
+    </javac2>
+    
+    <copy todir="${mediasdk.output.dir}">
+      <fileset dir="${module.mediasdk.basedir}/build/generated/source/r/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.mediasdk.basedir}/build/generated/source/aidl/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.mediasdk.basedir}/build/generated/source/buildConfig/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.mediasdk.basedir}/build/generated/source/rs/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.mediasdk.basedir}/build/generated/res/rs/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.mediasdk.basedir}/res">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.mediasdk.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.mediasdk.tests" depends="register.custom.compilers,compile.module.mediasdk.production" description="compile module MediaSDK; test classes" unless="skip.tests">
+    <mkdir dir="${mediasdk.testoutput.dir}"/>
+    <javac2 destdir="${mediasdk.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.mediasdk}/javac">
+      <compilerarg line="${compiler.args.mediasdk}"/>
+      <bootclasspath refid="mediasdk.module.bootclasspath"/>
+      <classpath refid="mediasdk.module.classpath"/>
+      <src refid="mediasdk.module.test.sourcepath"/>
+      <patternset refid="excluded.from.compilation.mediasdk"/>
+    </javac2>
+    
+    <copy todir="${mediasdk.testoutput.dir}">
+      <fileset dir="${module.mediasdk.basedir}/build/generated/source/r/androidTest/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.mediasdk.basedir}/build/generated/source/aidl/androidTest/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.mediasdk.basedir}/build/generated/source/buildConfig/androidTest/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.mediasdk.basedir}/build/generated/source/rs/androidTest/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.mediasdk.basedir}/build/generated/res/rs/androidTest/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean.module.mediasdk" description="cleanup module">
+    <delete dir="${mediasdk.output.dir}"/>
+    <delete dir="${mediasdk.testoutput.dir}"/>
+  </target>
+</project>

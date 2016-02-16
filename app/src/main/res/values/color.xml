@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#2B2C30</color>
+    <color name="colorPrimaryDark">#242528</color>
+    <color name="colorAccent">#424242</color>
+
+    <color name="rippleColor">#bdbdbd</color>
+
+    <color name="white">#FFFFFF</color>
+
+    <color name="welcomeStatus">#eeeeee</color>
+
+    <color name="book_loading_background">#ffffff</color>
+    <color name="book_loading_book">#ff33b5e5</color>
+    <color name="book_loading_page">#ffffff</color>
+
+    <color name="primary">#e51c23</color>
+    <color name="gray">#bdbdbd</color>
+
+    <color name="news">#ee424242</color>
+
+    <color name="transparent">#00ffffff</color>
+    <!--<color name="statusBar">#152127</color>-->
+    <color name="statusBar">#242528</color>
+    <color name="titleBar">#2B2C30</color>
+    <color name="divider">#55767676</color>
+    <color name="checkPicture">#212121</color>
+
+    <drawable name="clicked">#99212121</drawable>
+    <drawable name="titleBar">#2B2C30</drawable>
+    <drawable name="white">#ffffff</drawable>
+
+    <color name="clickableText">#1B66C1</color>
+
+    <color name="windowBackground">#fffafafa</color>
+
+    <color name="S">#e51c23</color>
+    <color name="A">#ff9800</color>
+    <color name="B">#ffc107</color>
+    <color name="C">#259b24</color>
+    <color name="D">#00bcd4</color>
+    <color name="NONE">#cccccc</color>
+
+    <color name="half_black">#808080</color>
+    <color name="white_pressed">#f1f1f1</color>
+
+    <color name="black_semi_transparent">#B2000000</color>
+</resources>

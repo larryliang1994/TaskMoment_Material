@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_multi-image-selector" default="compile.module.multi-image-selector">
+  <dirname property="module.multi-image-selector.basedir" file="${ant.file.module_multi-image-selector}"/>
+  
+  <property name="module.jdk.home.multi-image-selector" value="${jdk.home.android_api_23_platform}"/>
+  <property name="module.jdk.bin.multi-image-selector" value="${jdk.bin.android_api_23_platform}"/>
+  <property name="module.jdk.classpath.multi-image-selector" value="jdk.classpath.android_api_23_platform"/>
+  
+  <property name="compiler.args.multi-image-selector" value="-encoding UTF-8 -source 1.7 ${compiler.args}"/>
+  
+  <property name="multi-image-selector.output.dir" value="${module.multi-image-selector.basedir}/build/intermediates/classes/debug"/>
+  <property name="multi-image-selector.testoutput.dir" value="${module.multi-image-selector.basedir}/build/intermediates/classes/androidTest/debug"/>
+  
+  <path id="multi-image-selector.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="multi-image-selector.module.production.classpath">
+    <path refid="${module.jdk.classpath.multi-image-selector}"/>
+  </path>
+  
+  <path id="multi-image-selector.runtime.production.module.classpath">
+    <pathelement location="${multi-image-selector.output.dir}"/>
+  </path>
+  
+  <path id="multi-image-selector.module.classpath">
+    <path refid="${module.jdk.classpath.multi-image-selector}"/>
+    <pathelement location="${multi-image-selector.output.dir}"/>
+  </path>
+  
+  <path id="multi-image-selector.runtime.module.classpath">
+    <pathelement location="${multi-image-selector.testoutput.dir}"/>
+    <pathelement location="${multi-image-selector.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.multi-image-selector">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.multi-image-selector">
+    <patternset refid="excluded.from.module.multi-image-selector"/>
+  </patternset>
+  
+  <path id="multi-image-selector.module.sourcepath">
+    <dirset dir="${module.multi-image-selector.basedir}">
+      <include name="build/generated/source/r/debug"/>
+      <include name="build/generated/source/aidl/debug"/>
+      <include name="build/generated/source/buildConfig/debug"/>
+      <include name="build/generated/source/rs/debug"/>
+      <include name="build/generated/res/rs/debug"/>
+      <include name="src/main/res"/>
+      <include name="src/main/java"/>
+    </dirset>
+  </path>
+  
+  <path id="multi-image-selector.module.test.sourcepath">
+    <dirset dir="${module.multi-image-selector.basedir}">
+      <include name="build/generated/source/r/androidTest/debug"/>
+      <include name="build/generated/source/aidl/androidTest/debug"/>
+      <include name="build/generated/source/buildConfig/androidTest/debug"/>
+      <include name="build/generated/source/rs/androidTest/debug"/>
+      <include name="build/generated/res/rs/androidTest/debug"/>
+      <include name="src/androidTest/java"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.multi-image-selector" depends="compile.module.multi-image-selector.production,compile.module.multi-image-selector.tests" description="Compile module multi-image-selector"/>
+  
+  <target name="compile.module.multi-image-selector.production" depends="register.custom.compilers" description="Compile module multi-image-selector; production classes">
+    <mkdir dir="${multi-image-selector.output.dir}"/>
+    <javac2 destdir="${multi-image-selector.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.multi-image-selector}/javac">
+      <compilerarg line="${compiler.args.multi-image-selector}"/>
+      <bootclasspath refid="multi-image-selector.module.bootclasspath"/>
+      <classpath refid="multi-image-selector.module.production.classpath"/>
+      <src refid="multi-image-selector.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.multi-image-selector"/>
+    </javac2>
+    
+    <copy todir="${multi-image-selector.output.dir}">
+      <fileset dir="${module.multi-image-selector.basedir}/build/generated/source/r/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.multi-image-selector.basedir}/build/generated/source/aidl/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.multi-image-selector.basedir}/build/generated/source/buildConfig/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.multi-image-selector.basedir}/build/generated/source/rs/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.multi-image-selector.basedir}/build/generated/res/rs/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.multi-image-selector.basedir}/src/main/res">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.multi-image-selector.basedir}/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.multi-image-selector.tests" depends="register.custom.compilers,compile.module.multi-image-selector.production" description="compile module multi-image-selector; test classes" unless="skip.tests">
+    <mkdir dir="${multi-image-selector.testoutput.dir}"/>
+    <javac2 destdir="${multi-image-selector.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.multi-image-selector}/javac">
+      <compilerarg line="${compiler.args.multi-image-selector}"/>
+      <bootclasspath refid="multi-image-selector.module.bootclasspath"/>
+      <classpath refid="multi-image-selector.module.classpath"/>
+      <src refid="multi-image-selector.module.test.sourcepath"/>
+      <patternset refid="excluded.from.compilation.multi-image-selector"/>
+    </javac2>
+    
+    <copy todir="${multi-image-selector.testoutput.dir}">
+      <fileset dir="${module.multi-image-selector.basedir}/build/generated/source/r/androidTest/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.multi-image-selector.basedir}/build/generated/source/aidl/androidTest/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.multi-image-selector.basedir}/build/generated/source/buildConfig/androidTest/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.multi-image-selector.basedir}/build/generated/source/rs/androidTest/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.multi-image-selector.basedir}/build/generated/res/rs/androidTest/debug">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.multi-image-selector.basedir}/src/androidTest/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean.module.multi-image-selector" description="cleanup module">
+    <delete dir="${multi-image-selector.output.dir}"/>
+    <delete dir="${multi-image-selector.testoutput.dir}"/>
+  </target>
+</project>

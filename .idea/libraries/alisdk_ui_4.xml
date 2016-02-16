@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="alisdk-ui-4">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/MediaSDK/libs/alisdk-ui-4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

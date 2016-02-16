@@ -1,0 +1,24 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.activity.MainActivity">
+
+    <item
+        android:id="@+id/action_notification"
+        android:icon="@drawable/notification"
+        android:orderInCategory="100"
+        android:title="通知"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_publish"
+        android:orderInCategory="100"
+        android:title="新任务"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_preference"
+        android:orderInCategory="100"
+        android:title="设置"
+        app:showAsAction="never" />
+</menu>

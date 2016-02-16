@@ -1,0 +1,59 @@
+package com.jiubai.taskmoment.ui.activity;
+
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.widget.TextView;
+
+import com.jiubai.taskmoment.R;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
+/**
+ * 关于页面
+ */
+public class AboutActivity extends BaseActivity {
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
+
+    @Bind(R.id.tv_version)
+    TextView tv_version;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.aty_about);
+
+        ButterKnife.bind(this);
+
+        initView();
+    }
+
+    /**
+     * 初始化所有view
+     */
+    private void initView() {
+        initToolbar();
+
+        // 获取PackageManager的实例
+        PackageManager packageManager = getPackageManager();
+
+        try {
+            // getPackageName()是当前类的包名，0代表是获取版本信息
+            PackageInfo packInfo = packageManager.getPackageInfo(getPackageName(), 0);
+            tv_version.setText(packInfo.versionName + "-beta");
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initToolbar() {
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> {
+            finish();
+        });
+    }
+}

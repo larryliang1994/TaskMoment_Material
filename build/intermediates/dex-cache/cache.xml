@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/Users/Leunghowell/Desktop/AndroidProject/TaskMoment_Material/app/build/intermediates/exploded-aar/com.journeyapps/zxing-android-embedded/3.2.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="d4ce6303165f20650850673bd5891fbcca80caae">
+        <dex dex="/Users/Leunghowell/Desktop/AndroidProject/TaskMoment_Material/app/build/intermediates/pre-dexed/debug/classes-f9bf6ba53c09de827532f435e1ae0049565b414b.jar" />
+    </item>
+
+</items>

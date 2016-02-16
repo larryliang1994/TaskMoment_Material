@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="all">
+        <item
+            android:id="@+id/navItem_timeLine"
+            android:icon="@drawable/timeline"
+            android:title="@string/timeline" />
+        <item
+            android:id="@+id/navItem_member"
+            android:icon="@drawable/member"
+            android:title="@string/member" />
+        <item
+            android:id="@+id/navItem_userInfo"
+            android:icon="@drawable/userinfo"
+            android:title="@string/userInfo" />
+        <item
+            android:id="@+id/navItem_preference"
+            android:icon="@drawable/preference"
+            android:title="@string/preference" />
+        <item
+            android:id="@+id/navItem_chooseCompany"
+            android:icon="@drawable/change_company"
+            android:title="@string/change_company" />
+    </group>
+</menu>

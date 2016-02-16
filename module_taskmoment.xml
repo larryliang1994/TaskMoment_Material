@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_taskmoment" default="compile.module.taskmoment">
+  <dirname property="module.taskmoment.basedir" file="${ant.file.module_taskmoment}"/>
+  
+  <property name="module.jdk.home.taskmoment" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.taskmoment" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.taskmoment" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.taskmoment" value="-encoding UTF-8 -source 1.6 ${compiler.args}"/>
+  
+  <property name="taskmoment.output.dir" value="${module.taskmoment.basedir}/build/classes/production/TaskMoment"/>
+  <property name="taskmoment.testoutput.dir" value="${module.taskmoment.basedir}/build/classes/test/TaskMoment"/>
+  
+  <path id="taskmoment.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="taskmoment.module.production.classpath">
+    <path refid="${module.jdk.classpath.taskmoment}"/>
+  </path>
+  
+  <path id="taskmoment.runtime.production.module.classpath">
+    <pathelement location="${taskmoment.output.dir}"/>
+  </path>
+  
+  <path id="taskmoment.module.classpath">
+    <path refid="${module.jdk.classpath.taskmoment}"/>
+    <pathelement location="${taskmoment.output.dir}"/>
+  </path>
+  
+  <path id="taskmoment.runtime.module.classpath">
+    <pathelement location="${taskmoment.testoutput.dir}"/>
+    <pathelement location="${taskmoment.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.taskmoment">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.taskmoment">
+    <patternset refid="excluded.from.module.taskmoment"/>
+  </patternset>
+  
+  
+  <target name="compile.module.taskmoment" depends="compile.module.taskmoment.production,compile.module.taskmoment.tests" description="Compile module TaskMoment"/>
+  
+  <target name="compile.module.taskmoment.production" depends="register.custom.compilers" description="Compile module TaskMoment; production classes"/>
+  
+  <target name="compile.module.taskmoment.tests" depends="register.custom.compilers,compile.module.taskmoment.production" description="compile module TaskMoment; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.taskmoment" description="cleanup module">
+    <delete dir="${taskmoment.output.dir}"/>
+    <delete dir="${taskmoment.testoutput.dir}"/>
+  </target>
+</project>

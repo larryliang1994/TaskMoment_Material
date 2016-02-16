@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <!--形状为矩形-->
+<shape android:shape="rectangle"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--颜色渐变范围-->
+    <gradient android:startColor="#00000000" android:endColor="#33000000" />
+</shape>

@@ -5,20 +5,17 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.adapter.MemberListAdapter;
@@ -37,7 +34,6 @@ import com.jiubai.taskmoment.ui.iview.ITaskView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
 
 import butterknife.Bind;
@@ -53,11 +49,11 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
     @Bind(R.id.tv_space)
     TextView tv_space;
 
-    @Bind(R.id.tv_deadline)
-    TextView tv_deadline;
+    @Bind(R.id.edt_deadline)
+    EditText edt_deadline;
 
-    @Bind(R.id.tv_publishTime)
-    TextView tv_publishTime;
+    @Bind(R.id.edt_startTime)
+    EditText edt_startTime;
 
     @Bind(R.id.edt_desc)
     EditText edt_desc;
@@ -68,27 +64,17 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
     @Bind(R.id.gv_publish)
     GridView gv;
 
-    @Bind(R.id.btn_grade_s)
-    Button btn_s;
+    @Bind(R.id.tv_grade)
+    TextView tv_grade;
 
-    @Bind(R.id.btn_grade_a)
-    Button btn_a;
-
-    @Bind(R.id.btn_grade_b)
-    Button btn_b;
-
-    @Bind(R.id.btn_grade_c)
-    Button btn_c;
-
-    @Bind(R.id.btn_grade_d)
-    Button btn_d;
+    @Bind(R.id.sb_grade)
+    SeekBar sb_grade;
 
     private ITaskPresenter taskPresenter;
-    private int grade = 4;
     private String date;
-    private List<Button> gradeBtnList = new ArrayList<>();
     private boolean isDeadline = false, isStartTime = false;
     private PublishPictureAdapter adpt_publishPicture;
+    private int grade = 4;
     private int executor = -1, supervisor = -1, auditor = -1;
     private int year_deadline = 0, month_deadline = 0, day_deadline = 0,
             hour_deadline = 0, minute_deadline = 0,
@@ -116,22 +102,22 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_ok:
+                UtilBox.toggleSoftInput(edt_desc, false);
+
                 if (!Config.IS_CONNECTED) {
-                    Toast.makeText(TaskPublishActivity.this,
-                            R.string.cant_access_network,
-                            Toast.LENGTH_SHORT).show();
+                    UtilBox.showSnackbar(this, R.string.cant_access_network);
                 } else if (edt_desc.getText().toString().length() == 0) {
-                    Toast.makeText(TaskPublishActivity.this, "请填入任务描述", Toast.LENGTH_SHORT).show();
+                    UtilBox.showSnackbar(this, "请填入任务描述");
                 } else if (executor == -1) {
-                    Toast.makeText(TaskPublishActivity.this, "请选择执行者", Toast.LENGTH_SHORT).show();
+                    UtilBox.showSnackbar(this, "请选择执行者");
                 } else if (supervisor == -1) {
-                    Toast.makeText(TaskPublishActivity.this, "请选择监督者", Toast.LENGTH_SHORT).show();
+                    UtilBox.showSnackbar(this, "请选择监督者");
                 } else if (auditor == -1) {
-                    Toast.makeText(TaskPublishActivity.this, "请选择审核者", Toast.LENGTH_SHORT).show();
+                    UtilBox.showSnackbar(this, "请选择审核者");
                 } else if (year_deadline == 0) {
-                    Toast.makeText(TaskPublishActivity.this, "请填入完成期限", Toast.LENGTH_SHORT).show();
+                    UtilBox.showSnackbar(this, "请填入完成期限");
                 } else if (year_startTime == 0) {
-                    Toast.makeText(TaskPublishActivity.this, "请填入开始时间", Toast.LENGTH_SHORT).show();
+                    UtilBox.showSnackbar(this, "请填入开始时间");
                 } else {
                     // 先把多余的添加图片入口删掉
                     if (adpt_publishPicture.pictureList != null
@@ -147,8 +133,8 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
                             MemberListAdapter.memberList.get(executor).getMid(),
                             MemberListAdapter.memberList.get(supervisor).getMid(),
                             MemberListAdapter.memberList.get(auditor).getMid(),
-                            UtilBox.getStringToDate(tv_deadline.getText().toString()) / 1000 + "",
-                            UtilBox.getStringToDate(tv_publishTime.getText().toString()) / 1000 + ""
+                            UtilBox.getStringToDate(edt_deadline.getText().toString()) / 1000 + "",
+                            UtilBox.getStringToDate(edt_startTime.getText().toString()) / 1000 + ""
                     );
                 }
                 break;
@@ -163,17 +149,6 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
     private void initView() {
         initToolbar();
 
-        gradeBtnList.add(btn_s);
-        gradeBtnList.add(btn_a);
-        gradeBtnList.add(btn_b);
-        gradeBtnList.add(btn_c);
-        gradeBtnList.add(btn_d);
-
-        // 默认为C级
-        changeBtnColor("");
-        GradientDrawable gradeBgShape = (GradientDrawable) btn_c.getBackground();
-        gradeBgShape.setColor(ContextCompat.getColor(this, R.color.C));
-
         adpt_publishPicture = new PublishPictureAdapter(this, new ArrayList<>());
         gv.setAdapter(adpt_publishPicture);
 
@@ -181,6 +156,27 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
             UtilBox.toggleSoftInput(edt_desc, false);
 
             return false;
+        });
+
+        sb_grade.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                switch (progress) {
+                    case 0: tv_grade.setText("D");  grade = 5;  break;
+                    case 1: tv_grade.setText("C");  grade = 4;  break;
+                    case 2: tv_grade.setText("B");  grade = 3;  break;
+                    case 3: tv_grade.setText("A");  grade = 2;  break;
+                    case 4: tv_grade.setText("S");  grade = 1;  break;
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
         });
 
         taskPresenter = new TaskPresenterImpl(this);
@@ -191,7 +187,7 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
      */
     private void setResultAndFinish(String taskID) {
         Intent intent = new Intent();
-        intent.putExtra("grade", gradeBtnList.get(grade - 1).getText().toString());
+        intent.putExtra("grade", tv_grade.getText().toString());
         intent.putExtra("content", edt_desc.getText().toString());
         intent.putExtra("pictureList", adpt_publishPicture.pictureList);
         intent.putExtra("executor", MemberListAdapter.memberList.get(executor).getMid());
@@ -199,9 +195,9 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
         intent.putExtra("auditor", MemberListAdapter.memberList.get(auditor).getMid());
         intent.putExtra("taskID", taskID);
         intent.putExtra("deadline",
-                UtilBox.getStringToDate(tv_deadline.getText().toString()));
+                UtilBox.getStringToDate(edt_deadline.getText().toString()));
         intent.putExtra("publish_time",
-                UtilBox.getStringToDate(tv_publishTime.getText().toString()));
+                UtilBox.getStringToDate(edt_startTime.getText().toString()));
         intent.putExtra("create_time",
                 Calendar.getInstance(Locale.CHINA).getTimeInMillis());
 
@@ -214,17 +210,15 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
         toolbar.setNavigationOnClickListener(v -> finish());
     }
 
-    @OnClick({R.id.tv_deadline, R.id.tv_publishTime,
-            R.id.tv_executor, R.id.tv_supervisor, R.id.tv_auditor,
-            R.id.btn_grade_s, R.id.btn_grade_a, R.id.btn_grade_b,
-            R.id.btn_grade_c, R.id.btn_grade_d})
+    @OnClick({R.id.edt_deadline, R.id.edt_startTime,
+            R.id.edt_executor, R.id.edt_supervisor, R.id.edt_auditor})
     public void onClick(View view) {
         MyDate myDate;
         DateDialog dateDialog;
 
         switch (view.getId()) {
 
-            case R.id.tv_deadline:
+            case R.id.edt_deadline:
                 isDeadline = true;
 
                 myDate = getMyDate();
@@ -233,7 +227,7 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
                 dateDialog.show();
                 break;
 
-            case R.id.tv_publishTime:
+            case R.id.edt_startTime:
                 isStartTime = true;
 
                 myDate = getMyDate();
@@ -242,12 +236,12 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
                 dateDialog.show();
                 break;
 
-            case R.id.tv_executor:
+            case R.id.edt_executor:
 
                 MemberListAdapter.getMemberList(this, new MemberListAdapter.GetMemberCallBack() {
                     @Override
                     public void successCallback() {
-                        showMemberList(R.id.tv_executor, "executor");
+                        showMemberList(R.id.edt_executor, "executor");
                     }
 
                     @Override
@@ -257,12 +251,12 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
 
                 break;
 
-            case R.id.tv_supervisor:
+            case R.id.edt_supervisor:
 
                 MemberListAdapter.getMemberList(this, new MemberListAdapter.GetMemberCallBack() {
                     @Override
                     public void successCallback() {
-                        showMemberList(R.id.tv_supervisor, "supervisor");
+                        showMemberList(R.id.edt_supervisor, "supervisor");
                     }
 
                     @Override
@@ -272,12 +266,12 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
 
                 break;
 
-            case R.id.tv_auditor:
+            case R.id.edt_auditor:
 
                 MemberListAdapter.getMemberList(this, new MemberListAdapter.GetMemberCallBack() {
                     @Override
                     public void successCallback() {
-                        showMemberList(R.id.tv_auditor, "auditor");
+                        showMemberList(R.id.edt_auditor, "auditor");
                     }
 
                     @Override
@@ -285,31 +279,6 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
                     }
                 });
 
-                break;
-
-            case R.id.btn_grade_s:
-                grade = 1;
-                changeBtnColor("S");
-                break;
-
-            case R.id.btn_grade_a:
-                grade = 2;
-                changeBtnColor("A");
-                break;
-
-            case R.id.btn_grade_b:
-                grade = 3;
-                changeBtnColor("B");
-                break;
-
-            case R.id.btn_grade_c:
-                grade = 4;
-                changeBtnColor("C");
-                break;
-
-            case R.id.btn_grade_d:
-                grade = 5;
-                changeBtnColor("D");
                 break;
         }
     }
@@ -352,50 +321,6 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
         Dialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(true);
         dialog.show();
-    }
-
-    /**
-     * 修改分级按钮颜色
-     *
-     * @param which S,A,B,C,D
-     */
-    private void changeBtnColor(String which) {
-        // 全部变成灰色
-        for (int i = 0; i < gradeBtnList.size(); i++) {
-            if (i + 1 != grade) {
-                GradientDrawable gradeBgShape
-                        = (GradientDrawable) gradeBtnList.get(i).getBackground();
-                gradeBgShape.setColor(ContextCompat.getColor(this, R.color.NONE));
-            }
-        }
-
-        GradientDrawable gradeBgShape;
-        switch (which) {
-            case "S":
-                gradeBgShape = (GradientDrawable) btn_s.getBackground();
-                gradeBgShape.setColor(ContextCompat.getColor(this, R.color.S));
-                break;
-
-            case "A":
-                gradeBgShape = (GradientDrawable) btn_a.getBackground();
-                gradeBgShape.setColor(ContextCompat.getColor(this, R.color.A));
-                break;
-
-            case "B":
-                gradeBgShape = (GradientDrawable) btn_b.getBackground();
-                gradeBgShape.setColor(ContextCompat.getColor(this, R.color.B));
-                break;
-
-            case "C":
-                gradeBgShape = (GradientDrawable) btn_c.getBackground();
-                gradeBgShape.setColor(ContextCompat.getColor(this, R.color.C));
-                break;
-
-            case "D":
-                gradeBgShape = (GradientDrawable) btn_d.getBackground();
-                gradeBgShape.setColor(ContextCompat.getColor(this, R.color.D));
-                break;
-        }
     }
 
     /**
@@ -482,14 +407,14 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
 
             isDeadline = false;
 
-            tv_deadline.setText(date);
+            edt_deadline.setText(date);
         } else if (isStartTime) {
             hour_startTime = hourOfDay;
             minute_startTime = minute;
 
             isStartTime = false;
 
-            tv_publishTime.setText(date);
+            edt_startTime.setText(date);
         }
 
         date = null;

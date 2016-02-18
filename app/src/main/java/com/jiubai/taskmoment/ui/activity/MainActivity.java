@@ -27,6 +27,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jiubai.taskmoment.R;
@@ -203,6 +204,8 @@ public class MainActivity extends BaseActivity implements IUploadImageView {
         // 获取抽屉的头像
         iv_navigation = (CircleImageView) nv.getHeaderView(0).findViewById(R.id.iv_navigation);
         ImageLoader.getInstance().displayImage(Config.PORTRAIT + "?t=" + Config.TIME, iv_navigation);
+
+        nv.getHeaderView(0).findViewById(R.id.ll_nvHeader).setBackgroundResource(R.drawable.company_background_2);
     }
 
     private void switchFragment(int targetItem) {

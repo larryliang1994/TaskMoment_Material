@@ -10,8 +10,8 @@ android {
         applicationId "com.jiubai.taskmoment"
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 1000
-        versionName "1.8.0"
+        versionCode 1001
+        versionName "1.8.1"
     }
 
     signingConfigs {

@@ -62,8 +62,6 @@ public class LoginActivity extends BaseActivity implements ILoginView, IGetVerif
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        UtilBox.setStatusBarTint(this, R.color.colorPrimaryDark);
-
         setContentView(R.layout.aty_login);
 
         ButterKnife.bind(this);

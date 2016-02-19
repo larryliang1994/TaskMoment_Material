@@ -1,7 +1,6 @@
 package com.jiubai.taskmoment.presenter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 
@@ -15,7 +14,10 @@ import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.BaseUploadListener;
 import com.jiubai.taskmoment.net.MediaServiceUtil;
 import com.jiubai.taskmoment.common.UtilBox;
+import com.jiubai.taskmoment.receiver.UpdateViewEvent;
 import com.jiubai.taskmoment.ui.iview.IUploadImageView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -125,7 +127,7 @@ public class UploadImagePresenterImpl implements IUploadImagePresenter {
                 editor.putLong(Constants.SP_KEY_TIME, Config.TIME);
                 editor.apply();
 
-                context.sendBroadcast(new Intent(Constants.ACTION_CHANGE_BACKGROUND));
+                EventBus.getDefault().post(new UpdateViewEvent(Constants.ACTION_CHANGE_BACKGROUND));
                 break;
 
             case Constants.DIR_TASK:
@@ -143,8 +145,7 @@ public class UploadImagePresenterImpl implements IUploadImagePresenter {
                 editor.putLong(Constants.SP_KEY_TIME, Config.TIME);
                 editor.apply();
 
-                // 发送更新头像广播
-                context.sendBroadcast(new Intent(Constants.ACTION_CHANGE_PORTRAIT));
+                EventBus.getDefault().post(new UpdateViewEvent(Constants.ACTION_CHANGE_PORTRAIT));
                 break;
         }
     }

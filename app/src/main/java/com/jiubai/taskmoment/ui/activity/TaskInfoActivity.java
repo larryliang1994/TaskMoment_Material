@@ -33,11 +33,14 @@ import com.jiubai.taskmoment.presenter.IAuditPresenter;
 import com.jiubai.taskmoment.presenter.ICommentPresenter;
 import com.jiubai.taskmoment.presenter.ITaskPresenter;
 import com.jiubai.taskmoment.presenter.TaskPresenterImpl;
-import com.jiubai.taskmoment.receiver.UpdateViewReceiver;
+import com.jiubai.taskmoment.receiver.UpdateViewEvent;
 import com.jiubai.taskmoment.ui.iview.IAuditView;
 import com.jiubai.taskmoment.ui.iview.ICommentView;
 import com.jiubai.taskmoment.ui.iview.ITaskView;
 import com.nostra13.universalimageloader.core.ImageLoader;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
@@ -53,9 +56,6 @@ public class TaskInfoActivity extends BaseActivity implements ICommentView, IAud
 
     @Bind(R.id.iv_portrait)
     ImageView iv_portrait;
-
-    @Bind(R.id.btn_comment)
-    Button btn_comment;
 
     @Bind(R.id.btn_audit)
     Button btn_audit;
@@ -116,7 +116,6 @@ public class TaskInfoActivity extends BaseActivity implements ICommentView, IAud
     private static ICommentPresenter commentPresenter;
     private ITaskPresenter taskPresenter;
     private IAuditPresenter auditPresenter;
-    private UpdateViewReceiver commentReceiver, auditReceiver;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -129,6 +128,8 @@ public class TaskInfoActivity extends BaseActivity implements ICommentView, IAud
         task = (Task) getIntent().getSerializableExtra("task");
 
         initView();
+
+        EventBus.getDefault().register(this);
     }
 
     /**
@@ -214,9 +215,7 @@ public class TaskInfoActivity extends BaseActivity implements ICommentView, IAud
 
     private void initToolbar() {
         setSupportActionBar(toolbar);
-        toolbar.setNavigationOnClickListener(v -> {
-            finish();
-        });
+        toolbar.setNavigationOnClickListener(v -> finish());
     }
 
     private void initTaskInfo() {
@@ -411,39 +410,32 @@ public class TaskInfoActivity extends BaseActivity implements ICommentView, IAud
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-
-        commentReceiver = new UpdateViewReceiver(this,
-                (msg, object) -> {
-                    List<Comment> list = adapter_comment.commentList;
-                    list.add((Comment) object[0]);
-
-                    lv_comment.setAdapter(new CommentAdapter(TaskInfoActivity.this, list, "taskInfo"));
-
-                    UtilBox.setListViewHeightBasedOnChildren(lv_comment);
-                });
-        commentReceiver.registerAction(Constants.ACTION_SEND_COMMENT);
-
-        auditReceiver = new UpdateViewReceiver(this,
-                (msg, object) -> {
-                    tv_audit_result.setVisibility(View.VISIBLE);
-
-                    task.setAuditResult((String) object[0]);
-
-                    tv_audit_result.setText(
-                            Constants.AUDIT_RESULT[Integer.valueOf(task.getAuditResult())]);
-
-                });
-        auditReceiver.registerAction(Constants.ACTION_AUDIT);
+    public void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    @Subscribe
+    public void onEvent(UpdateViewEvent event){
+        switch (event.getAction()) {
+            case Constants.ACTION_SEND_COMMENT:
+                List<Comment> list = adapter_comment.commentList;
+                list.add((Comment) event.getSerializableExtra());
 
-        unregisterReceiver(commentReceiver);
-        unregisterReceiver(auditReceiver);
+                lv_comment.setAdapter(new CommentAdapter(TaskInfoActivity.this, list, "taskInfo"));
+
+                UtilBox.setListViewHeightBasedOnChildren(lv_comment);
+                break;
+
+            case Constants.ACTION_AUDIT:
+                tv_audit_result.setVisibility(View.VISIBLE);
+
+                task.setAuditResult((String) event.getSerializableExtra());
+
+                tv_audit_result.setText(
+                        Constants.AUDIT_RESULT[Integer.valueOf(task.getAuditResult())]);
+                break;
+        }
     }
 
     @Override
@@ -472,15 +464,17 @@ public class TaskInfoActivity extends BaseActivity implements ICommentView, IAud
             ll_audit.setVisibility(View.GONE);
 
             btn_audit.setVisibility(View.GONE);
-        }
 
-        UtilBox.showSnackbar(this, info);
+            auditWindowIsShow = false;
+        } else {
+            UtilBox.showSnackbar(this, info);
+        }
     }
 
     @Override
     public void onSendCommentResult(String result, String info) {
         if (Constants.SUCCESS.equals(result)) {
-
+            commentWindowIsShow = false;
         } else if (Constants.FAILED.equals(result)) {
             UtilBox.showSnackbar(this, info);
         }

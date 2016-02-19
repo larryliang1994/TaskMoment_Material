@@ -2,7 +2,6 @@ package com.jiubai.taskmoment.ui.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -95,8 +94,6 @@ public class PreferenceFragment extends Fragment implements RippleView.OnRippleC
 
             case R.id.rv_about:
                 startActivity(new Intent(getActivity(), AboutActivity.class));
-                getActivity().overridePendingTransition(
-                        R.anim.in_right_left, R.anim.scale_stay);
                 break;
 
             case R.id.rv_exit:

@@ -88,6 +88,17 @@ public class TimelineListAdapter extends RecyclerView.Adapter {
         decodeTaskList(response);
     }
 
+    public static int getTaskPositionWithID(String taskID) {
+        for (int i = 0; i < taskList.size(); i++) {
+            Task task = taskList.get(i);
+            if (task.getId().equals(taskID)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_ITEM) {

@@ -20,13 +20,13 @@ import android.widget.Toast;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.adapter.MemberListAdapter;
 import com.jiubai.taskmoment.adapter.PersonalTimelineAdapter;
-import com.jiubai.taskmoment.adapter.TimelineListAdapter;
 import com.jiubai.taskmoment.bean.Comment;
 import com.jiubai.taskmoment.bean.News;
 import com.jiubai.taskmoment.bean.Task;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
+import com.jiubai.taskmoment.receiver.UpdateViewEvent;
 import com.jiubai.taskmoment.widget.BorderScrollView;
 import com.jiubai.taskmoment.common.UtilBox;
 import com.jiubai.taskmoment.presenter.AuditPresenterImpl;
@@ -35,11 +35,14 @@ import com.jiubai.taskmoment.presenter.IAuditPresenter;
 import com.jiubai.taskmoment.presenter.ICommentPresenter;
 import com.jiubai.taskmoment.presenter.ITimelinePresenter;
 import com.jiubai.taskmoment.presenter.TimelinePresenterImpl;
-import com.jiubai.taskmoment.receiver.UpdateViewReceiver;
 import com.jiubai.taskmoment.ui.iview.IAuditView;
 import com.jiubai.taskmoment.ui.iview.ICommentView;
 import com.jiubai.taskmoment.ui.iview.ITimelineView;
 import com.nostra13.universalimageloader.core.ImageLoader;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -88,8 +91,6 @@ public class PersonalTimelineActivity extends BaseActivity
     private View footerView;
     private String mid, isAudit, isInvolved;
     private boolean isBottomRefreshing = false;
-    private UpdateViewReceiver deleteTaskReceiver, commentReceiver, auditReceiver,
-            nicknameReceiver, portraitReceiver;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -105,6 +106,8 @@ public class PersonalTimelineActivity extends BaseActivity
         isInvolved = intent.getBooleanExtra("isInvolved", false) ? "1" : "0";
 
         initView();
+
+        EventBus.getDefault().register(this);
     }
 
     /**
@@ -359,89 +362,78 @@ public class PersonalTimelineActivity extends BaseActivity
     }
 
     @Override
-    protected void onStart() {
-        deleteTaskReceiver = new UpdateViewReceiver(this,
-                (taskID, objects) -> {
-
-                    for (int i = 0; i < PersonalTimelineAdapter.taskList.size(); i++) {
-                        if (TimelineListAdapter.taskList.get(i).getId().equals(taskID)) {
-                            TimelineListAdapter.taskList.remove(i);
-                            adapter.notifyDataSetChanged();
-                            UtilBox.setListViewHeightBasedOnChildren(lv);
-                            break;
-                        }
-                    }
-                });
-        deleteTaskReceiver.registerAction(Constants.ACTION_DELETE_TASK);
-
-        commentReceiver = new UpdateViewReceiver(this,
-                (taskID, objects) -> {
-                    for (int i = 0; i < PersonalTimelineAdapter.taskList.size(); i++) {
-                        Task task = PersonalTimelineAdapter.taskList.get(i);
-                        if (task.getId().equals(taskID)) {
-                            Comment comment = (Comment) objects[0];
-
-                            if (task.getComments().get(task.getComments().size() - 1).getTime()
-                                    != comment.getTime()) {
-
-                                PersonalTimelineAdapter.taskList.get(i).getComments().add(comment);
-                                adapter.notifyDataSetChanged();
-                                UtilBox.setListViewHeightBasedOnChildren(lv);
-
-                                break;
-                            }
-                        }
-                    }
-                });
-        commentReceiver.registerAction(Constants.ACTION_SEND_COMMENT);
-
-        auditReceiver = new UpdateViewReceiver(this,
-                (taskID, object) -> {
-                    for (int i = 0; i < PersonalTimelineAdapter.taskList.size(); i++) {
-                        Task task = PersonalTimelineAdapter.taskList.get(i);
-                        if (task.getId().equals(taskID)) {
-                            task.setAuditResult((String) object[0]);
-                            PersonalTimelineAdapter.taskList.set(i, task);
-
-                            adapter.notifyDataSetChanged();
-                            UtilBox.setListViewHeightBasedOnChildren(lv);
-
-                            break;
-                        }
-                    }
-                });
-        auditReceiver.registerAction(Constants.ACTION_AUDIT);
-
-        nicknameReceiver = new UpdateViewReceiver(this,
-                (msg, objects) -> {
-                    toolbar.setTitle(Config.NICKNAME);
-                    tv_nickname.setText(Config.NICKNAME);
-                });
-        nicknameReceiver.registerAction(Constants.ACTION_CHANGE_NICKNAME);
-
-        portraitReceiver = new UpdateViewReceiver(this,
-                (msg, objects) -> ImageLoader.getInstance().displayImage(
-                        Config.PORTRAIT + "?t=" + Config.TIME, iv_portrait));
-        portraitReceiver.registerAction(Constants.ACTION_CHANGE_PORTRAIT);
-
-        super.onStart();
+    public void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
     }
 
-    @Override
-    protected void onDestroy() {
-        unregisterReceiver(deleteTaskReceiver);
-        unregisterReceiver(commentReceiver);
-        unregisterReceiver(auditReceiver);
-        unregisterReceiver(nicknameReceiver);
-        unregisterReceiver(portraitReceiver);
+    @Subscribe
+    public void onEvent(UpdateViewEvent event) {
+        int position;
+        switch (event.getAction()) {
+            case Constants.ACTION_DELETE_TASK:
+                position = PersonalTimelineAdapter.getTaskPositionWithID(event.getStringExtra());
 
-        super.onDestroy();
+                if (position != -1) {
+                    PersonalTimelineAdapter.taskList.remove(position);
+                    adapter.notifyDataSetChanged();
+                    UtilBox.setListViewHeightBasedOnChildren(lv);
+                }
+
+                break;
+
+            case Constants.ACTION_SEND_COMMENT:
+                position = PersonalTimelineAdapter.getTaskPositionWithID(event.getStringExtra());
+
+                if (position != -1) {
+                    Task task = PersonalTimelineAdapter.taskList.get(position);
+                    Comment comment = (Comment) event.getSerializableExtra();
+
+                    if (task.getComments().isEmpty() ||
+                            task.getComments().get(task.getComments().size() - 1).getTime()
+                            != comment.getTime()) {
+
+                        PersonalTimelineAdapter.taskList.get(position).getComments().add(comment);
+                        adapter.notifyDataSetChanged();
+                        UtilBox.setListViewHeightBasedOnChildren(lv);
+
+                        break;
+                    }
+                }
+
+                break;
+
+            case Constants.ACTION_AUDIT:
+                position = PersonalTimelineAdapter.getTaskPositionWithID(event.getStringExtra());
+
+                if (position != -1) {
+                    PersonalTimelineAdapter.taskList.get(
+                            position).setAuditResult((String) event.getSerializableExtra());
+
+                    adapter.notifyDataSetChanged();
+                    UtilBox.setListViewHeightBasedOnChildren(lv);
+                }
+
+                break;
+
+            case Constants.ACTION_CHANGE_NICKNAME:
+                toolbar.setTitle(Config.NICKNAME);
+                tv_nickname.setText(Config.NICKNAME);
+                break;
+
+            case Constants.ACTION_CHANGE_PORTRAIT:
+                ImageLoader.getInstance().displayImage(
+                        Config.PORTRAIT + "?t=" + Config.TIME, iv_portrait);
+                break;
+        }
     }
 
     @Override
     public void onAuditResult(String result, String info) {
         if (Constants.SUCCESS.equals(result)) {
             ll_audit.setVisibility(View.GONE);
+
+            auditWindowIsShow = false;
         }
 
         UtilBox.showSnackbar(this, info);
@@ -450,7 +442,7 @@ public class PersonalTimelineActivity extends BaseActivity
     @Override
     public void onSendCommentResult(String result, String info) {
         if (Constants.SUCCESS.equals(result)) {
-
+            commentWindowIsShow = false;
         } else if (Constants.FAILED.equals(result)) {
             UtilBox.showSnackbar(this, info);
         }

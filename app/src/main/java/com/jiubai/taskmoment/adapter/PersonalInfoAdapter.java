@@ -94,12 +94,10 @@ public class PersonalInfoAdapter extends BaseAdapter implements IChangeNicknameV
             convertView = LayoutInflater.from(context).inflate(R.layout.item_userinfo_head, null);
 
             tv_nickname = ((TextView) convertView.findViewById(R.id.tv_nickname));
-            if (!"".equals(nickname) && !"null".equals(nickname)) {
-                tv_nickname.setText(nickname);
+            tv_nickname.setText(nickname);
 
-                if(mid.equals(Config.MID)){
-                    tv_nickname.setOnClickListener(v -> showNicknameDialog(nickname));
-                }
+            if(mid.equals(Config.MID)){
+                tv_nickname.setOnClickListener(v -> showNicknameDialog(nickname));
             }
 
             final ImageView iv_portrait = (ImageView) convertView.findViewById(R.id.iv_portrait);

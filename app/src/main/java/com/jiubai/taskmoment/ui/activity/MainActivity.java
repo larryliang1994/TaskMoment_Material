@@ -27,7 +27,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jiubai.taskmoment.R;
@@ -36,13 +35,16 @@ import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.common.UtilBox;
 import com.jiubai.taskmoment.presenter.IUploadImagePresenter;
 import com.jiubai.taskmoment.presenter.UploadImagePresenterImpl;
-import com.jiubai.taskmoment.receiver.UpdateViewReceiver;
+import com.jiubai.taskmoment.receiver.UpdateViewEvent;
 import com.jiubai.taskmoment.ui.fragment.MemberFragment;
 import com.jiubai.taskmoment.ui.fragment.PreferenceFragment;
 import com.jiubai.taskmoment.ui.fragment.TimelineFragment;
 import com.jiubai.taskmoment.ui.fragment.UserInfoFragment;
 import com.jiubai.taskmoment.ui.iview.IUploadImageView;
 import com.nostra13.universalimageloader.core.ImageLoader;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -82,7 +84,6 @@ public class MainActivity extends BaseActivity implements IUploadImageView {
     private int currentItem = 0;
     private IUploadImagePresenter uploadImagePresenter;
     private Uri imageUri = Constants.TEMP_FILE_LOCATION;
-    private UpdateViewReceiver nicknameReceiver, portraitReceiver;
 
     private TimelineFragment frag_timeline = new TimelineFragment();
     private MemberFragment frag_member = new MemberFragment();
@@ -98,15 +99,8 @@ public class MainActivity extends BaseActivity implements IUploadImageView {
         ButterKnife.bind(this);
 
         initView();
-    }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        if (UtilBox.isApplicationBroughtToBackground(this)) {
-            finish();
-        }
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -381,30 +375,30 @@ public class MainActivity extends BaseActivity implements IUploadImageView {
     }
 
     @Override
-    protected void onStart() {
-        nicknameReceiver = new UpdateViewReceiver(this,
-                (msg, objects) -> {
-                    tv_nickname.setText(Config.NICKNAME);
-                    nv.refreshDrawableState();
-                });
-        nicknameReceiver.registerAction(Constants.ACTION_CHANGE_NICKNAME);
+    public void onDestroy() {
+        EventBus.getDefault().unregister(this);
 
-        portraitReceiver = new UpdateViewReceiver(this,
-                (msg, objects) -> {
-                    ImageLoader.getInstance().displayImage(Config.PORTRAIT + "?t=" + Config.TIME, iv_navigation);
-                    nv.refreshDrawableState();
-                });
-        portraitReceiver.registerAction(Constants.ACTION_CHANGE_PORTRAIT);
-
-        super.onStart();
-    }
-
-    @Override
-    protected void onDestroy() {
-        unregisterReceiver(nicknameReceiver);
-        unregisterReceiver(portraitReceiver);
+        if (UtilBox.isApplicationBroughtToBackground(this)) {
+            finish();
+        }
 
         super.onDestroy();
+    }
+
+    @Subscribe
+    public void onEvent(UpdateViewEvent event){
+        switch(event.getAction()){
+            case Constants.ACTION_CHANGE_NICKNAME:
+                tv_nickname.setText(Config.NICKNAME);
+                nv.refreshDrawableState();
+                break;
+
+            case Constants.ACTION_CHANGE_PORTRAIT:
+                ImageLoader.getInstance().displayImage(
+                        Config.PORTRAIT + "?t=" + Config.TIME, iv_navigation);
+                nv.refreshDrawableState();
+                break;
+        }
     }
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {

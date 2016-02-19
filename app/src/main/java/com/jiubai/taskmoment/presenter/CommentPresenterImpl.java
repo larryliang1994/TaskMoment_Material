@@ -1,15 +1,16 @@
 package com.jiubai.taskmoment.presenter;
 
 import android.content.Context;
-import android.content.Intent;
 
 import com.jiubai.taskmoment.bean.Comment;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
+import com.jiubai.taskmoment.receiver.UpdateViewEvent;
 import com.jiubai.taskmoment.ui.iview.ICommentView;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -48,29 +49,20 @@ public class CommentPresenterImpl implements ICommentPresenter {
                             iCommentView.onSendCommentResult(status, "发送失败，请重试");
 
                         } else {
-                            // 发送更新评论广播
-                            Intent intent = new Intent(Constants.ACTION_SEND_COMMENT);
-                            intent.putExtra("taskID", taskID);
-
-                            String nickname;
-                            if ("".equals(Config.NICKNAME) || "null".equals(Config.NICKNAME)) {
-                                nickname = "你";
-                            } else {
-                                nickname = Config.NICKNAME;
-                            }
-
+                            Comment comment = null;
                             if (!"".equals(receiver)) {
-                                intent.putExtra("comment", new Comment(
-                                        taskID, nickname, Config.MID,
+                                comment = new Comment(
+                                        taskID, Config.NICKNAME, Config.MID,
                                         receiver, receiverID, content,
-                                        Calendar.getInstance(Locale.CHINA).getTimeInMillis()));
+                                        Calendar.getInstance(Locale.CHINA).getTimeInMillis());
                             } else {
-                                intent.putExtra("comment", new Comment(
-                                        taskID, nickname, Config.MID, content,
-                                        Calendar.getInstance(Locale.CHINA).getTimeInMillis()));
+                                comment = new Comment(
+                                        taskID, Config.NICKNAME, Config.MID, content,
+                                        Calendar.getInstance(Locale.CHINA).getTimeInMillis());
                             }
 
-                            context.sendBroadcast(intent);
+                            EventBus.getDefault().post(
+                                    new UpdateViewEvent(Constants.ACTION_SEND_COMMENT, taskID, comment));
 
                             iCommentView.onSendCommentResult(Constants.SUCCESS, "");
                         }

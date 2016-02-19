@@ -9,8 +9,10 @@ import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
+import com.jiubai.taskmoment.receiver.UpdateViewEvent;
 import com.jiubai.taskmoment.ui.iview.IChangeNicknameView;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -41,10 +43,7 @@ public class ChangeNicknamePresenterImpl implements IChangeNicknamePresenter{
 
                             Config.NICKNAME = newNickname;
 
-                            // 发送更新昵称广播
-                            Intent intent = new Intent(Constants.ACTION_CHANGE_NICKNAME);
-                            intent.putExtra("nickname", newNickname);
-                            context.sendBroadcast(intent);
+                            EventBus.getDefault().post(new UpdateViewEvent(Constants.ACTION_CHANGE_NICKNAME));
 
                             SharedPreferences.Editor editor
                                     = App.sp.edit();

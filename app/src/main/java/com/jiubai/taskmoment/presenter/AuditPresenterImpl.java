@@ -1,13 +1,14 @@
 package com.jiubai.taskmoment.presenter;
 
 import android.content.Context;
-import android.content.Intent;
 
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
+import com.jiubai.taskmoment.receiver.UpdateViewEvent;
 import com.jiubai.taskmoment.ui.iview.IAuditView;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,11 +39,8 @@ public class AuditPresenterImpl implements IAuditPresenter {
                                 responseJson.getString("status"),
                                 responseJson.getString("info"));
 
-                        // 发送广播
-                        Intent intent = new Intent(Constants.ACTION_AUDIT);
-                        intent.putExtra("taskID", taskID);
-                        intent.putExtra("auditResult", audit_result);
-                        context.sendBroadcast(intent);
+                        EventBus.getDefault().post(
+                                new UpdateViewEvent(Constants.ACTION_AUDIT, taskID, audit_result));
 
                     } catch (JSONException e) {
                         e.printStackTrace();

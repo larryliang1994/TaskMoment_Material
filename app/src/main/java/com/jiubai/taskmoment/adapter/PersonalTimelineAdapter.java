@@ -97,6 +97,17 @@ public class PersonalTimelineAdapter extends BaseAdapter {
         }
     }
 
+    public static int getTaskPositionWithID(String taskID) {
+        for (int i = 0; i < taskList.size(); i++) {
+            Task task = taskList.get(i);
+            if (task.getId().equals(taskID)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
     /**
      * 设置任务等级的颜色
      *

@@ -2,11 +2,11 @@
 <items version="2" >
 
     <item
-        jar="/Users/Leunghowell/Desktop/AndroidProject/TaskMoment_Material/app/build/intermediates/exploded-aar/com.journeyapps/zxing-android-embedded/3.2.0/jars/classes.jar"
+        jar="/Users/Leunghowell/.gradle/caches/modules-2/files-2.1/org.greenrobot/eventbus/3.0.0/ddd99896e9569eaababbe81b35d80e1b91c4ad85/eventbus-3.0.0.jar"
         jumboMode="false"
         revision="23.0.2"
-        sha1="d4ce6303165f20650850673bd5891fbcca80caae">
-        <dex dex="/Users/Leunghowell/Desktop/AndroidProject/TaskMoment_Material/app/build/intermediates/pre-dexed/debug/classes-f9bf6ba53c09de827532f435e1ae0049565b414b.jar" />
+        sha1="ddd99896e9569eaababbe81b35d80e1b91c4ad85">
+        <dex dex="/Users/Leunghowell/Desktop/AndroidProject/TaskMoment_Material/app/build/intermediates/pre-dexed/debug/eventbus-3.0.0-1c697f2fac29236635ff08de5b04ec281663d255.jar" />
     </item>
 
 </items>

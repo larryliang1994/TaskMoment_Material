@@ -13,8 +13,11 @@ import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.common.UtilBox;
 import com.jiubai.taskmoment.presenter.IUploadImagePresenter;
 import com.jiubai.taskmoment.presenter.UploadImagePresenterImpl;
-import com.jiubai.taskmoment.receiver.UpdateViewReceiver;
+import com.jiubai.taskmoment.receiver.UpdateViewEvent;
 import com.jiubai.taskmoment.ui.iview.IUploadImageView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
@@ -34,7 +37,6 @@ public class PersonalInfoActivity extends BaseActivity implements IUploadImageVi
     private String mid, nickname;
     private PersonalInfoAdapter adapter;
     private IUploadImagePresenter uploadImagePresenter;
-    private UpdateViewReceiver nicknameReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +51,8 @@ public class PersonalInfoActivity extends BaseActivity implements IUploadImageVi
         nickname = intent.getStringExtra("nickname");
 
         initView();
+
+        EventBus.getDefault().register(this);
     }
 
     /**
@@ -66,25 +70,22 @@ public class PersonalInfoActivity extends BaseActivity implements IUploadImageVi
     private void initToolbar() {
         setSupportActionBar(toolbar);
         toolbar.setTitle(nickname);
-        toolbar.setNavigationOnClickListener(v -> {
-            finish();
-        });
-    }
-
-    @Override
-    public void onStart() {
-        nicknameReceiver = new UpdateViewReceiver(this,
-                (msg, objects) -> adapter.notifyDataSetChanged());
-        nicknameReceiver.registerAction(Constants.ACTION_CHANGE_NICKNAME);
-
-        super.onStart();
+        toolbar.setNavigationOnClickListener(v -> finish());
     }
 
     @Override
     public void onDestroy() {
-        unregisterReceiver(nicknameReceiver);
-
+        EventBus.getDefault().unregister(this);
         super.onDestroy();
+    }
+
+    @Subscribe
+    public void onEvent(UpdateViewEvent event){
+        switch (event.getAction()) {
+            case Constants.ACTION_CHANGE_NICKNAME:
+                adapter.notifyDataSetChanged();
+                break;
+        }
     }
 
     @Override

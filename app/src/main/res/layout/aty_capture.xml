@@ -88,7 +88,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="@null"
-            android:padding="12dp"
+            android:padding="9dp"
             android:scaleType="centerInside"
             android:src="@drawable/back" />
 

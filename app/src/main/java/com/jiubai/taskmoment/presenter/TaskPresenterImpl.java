@@ -7,9 +7,11 @@ import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
+import com.jiubai.taskmoment.receiver.UpdateViewEvent;
 import com.jiubai.taskmoment.ui.fragment.TimelineFragment;
 import com.jiubai.taskmoment.ui.iview.ITaskView;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -113,14 +115,12 @@ public class TaskPresenterImpl implements ITaskPresenter {
                     try {
                         JSONObject jsonObject = new JSONObject(response);
 
-                        String status =jsonObject.getString("status");
+                        String status = jsonObject.getString("status");
 
                         if (Constants.SUCCESS.equals(status)) {
 
-                            Intent intent = new Intent(Constants.ACTION_DELETE_TASK);
-                            intent.putExtra("taskID", taskID);
-
-                            context.sendBroadcast(intent);
+                            EventBus.getDefault().post(
+                                    new UpdateViewEvent(Constants.ACTION_DELETE_TASK, taskID));
 
                             iTaskView.onDeleteTaskResult(status, "");
                         } else {

@@ -41,13 +41,16 @@ import com.jiubai.taskmoment.presenter.IUploadImagePresenter;
 import com.jiubai.taskmoment.presenter.TaskPresenterImpl;
 import com.jiubai.taskmoment.presenter.TimelinePresenterImpl;
 import com.jiubai.taskmoment.presenter.UploadImagePresenterImpl;
-import com.jiubai.taskmoment.receiver.UpdateViewReceiver;
+import com.jiubai.taskmoment.receiver.UpdateViewEvent;
 import com.jiubai.taskmoment.ui.iview.IAuditView;
 import com.jiubai.taskmoment.ui.iview.ICommentView;
 import com.jiubai.taskmoment.ui.iview.ITaskView;
 import com.jiubai.taskmoment.ui.iview.ITimelineView;
 import com.jiubai.taskmoment.ui.iview.IUploadImageView;
 import com.jiubai.taskmoment.widget.DividerItemDecoration;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -60,7 +63,7 @@ import butterknife.ButterKnife;
 /**
  * 时间线（任务圈）
  */
-public class TimelineFragment extends Fragment implements ITimelineView,IUploadImageView,
+public class TimelineFragment extends Fragment implements ITimelineView, IUploadImageView,
         ICommentView, ITaskView, IAuditView {
 
     @Bind(R.id.recyclerView)
@@ -83,7 +86,6 @@ public class TimelineFragment extends Fragment implements ITimelineView,IUploadI
     private ITaskPresenter taskPresenter;
     private ITimelinePresenter timelinePresenter;
     private IUploadImagePresenter uploadImagePresenter;
-    private UpdateViewReceiver deleteTaskReceiver, commentReceiver, auditReceiver;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -159,85 +161,64 @@ public class TimelineFragment extends Fragment implements ITimelineView,IUploadI
         }, 200);
     }
 
-    /**
-     * 注册广播接收器
-     */
     @Override
-    public void onStart() {
-
-        deleteTaskReceiver = new UpdateViewReceiver(getActivity(),
-                (taskID1, objects) -> {
-
-                    for (int i = 0; i < TimelineListAdapter.taskList.size(); i++) {
-                        // TODO 如果任务ID是递增的，就可以用二分查找
-                        if (TimelineListAdapter.taskList.get(i).getId().equals(taskID1)) {
-                            TimelineListAdapter.taskList.remove(i);
-                            adapter.notifyDataSetChanged();
-
-                            break;
-                        }
-                    }
-                });
-        deleteTaskReceiver.registerAction(Constants.ACTION_DELETE_TASK);
-
-        commentReceiver = new UpdateViewReceiver(getActivity(),
-                (taskID1, objects) -> {
-
-                    for (int i = 0; i < TimelineListAdapter.taskList.size(); i++) {
-                        Task task = TimelineListAdapter.taskList.get(i);
-                        if (task.getId().equals(taskID1)) {
-                            Comment comment = (Comment) objects[0];
-                            // 防止多次添加
-                            if (task.getComments().isEmpty() ||
-                                    task.getComments().get(task.getComments().size() - 1).getTime()
-                                            != comment.getTime()) {
-
-                                TimelineListAdapter.taskList.get(i).getComments().add(comment);
-
-                                adapter.notifyDataSetChanged();
-
-                                break;
-                            }
-                        }
-                    }
-                });
-        commentReceiver.registerAction(Constants.ACTION_SEND_COMMENT);
-
-        auditReceiver = new UpdateViewReceiver(getActivity(),
-                (taskID1, object) -> {
-                    for (int i = 0; i < TimelineListAdapter.taskList.size(); i++) {
-
-                        Task task = TimelineListAdapter.taskList.get(i);
-                        if (task.getId().equals(taskID1)) {
-
-                            TimelineListAdapter.taskList.get(i).setAuditResult((String) object[0]);
-
-                            adapter.notifyDataSetChanged();
-
-                            break;
-                        }
-                    }
-                });
-        auditReceiver.registerAction(Constants.ACTION_AUDIT);
-
-
-        super.onStart();
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
     }
 
     @Override
     public void onDestroy() {
-        // 应该在接收完了以后就注销掉，但根据需求，不应注销
-        if(deleteTaskReceiver!=null) {
-            getActivity().unregisterReceiver(deleteTaskReceiver);
-        }
-        if(commentReceiver!=null) {
-            getActivity().unregisterReceiver(commentReceiver);
-        }
-        if(auditReceiver!=null) {
-            getActivity().unregisterReceiver(auditReceiver);
-        }
-
+        EventBus.getDefault().unregister(this);
         super.onDestroy();
+    }
+
+    @Subscribe
+    public void onEvent(UpdateViewEvent event) {
+        int position;
+        switch (event.getAction()) {
+            case Constants.ACTION_DELETE_TASK:
+                position = TimelineListAdapter.getTaskPositionWithID(event.getStringExtra());
+
+                if (position != -1) {
+                    TimelineListAdapter.taskList.remove(position);
+                    adapter.notifyDataSetChanged();
+                }
+
+                break;
+
+            case Constants.ACTION_SEND_COMMENT:
+                position = TimelineListAdapter.getTaskPositionWithID(event.getStringExtra());
+
+                if (position != -1) {
+                    Task task = TimelineListAdapter.taskList.get(position);
+                    Comment comment = (Comment) event.getSerializableExtra();
+                    // 防止多次添加
+                    if (task.getComments().isEmpty() ||
+                            task.getComments().get(task.getComments().size() - 1).getTime()
+                                    != comment.getTime()) {
+
+                        TimelineListAdapter.taskList.get(position).getComments().add(comment);
+
+                        adapter.notifyDataSetChanged();
+
+                        break;
+                    }
+                }
+
+                break;
+
+            case Constants.ACTION_AUDIT:
+                position = TimelineListAdapter.getTaskPositionWithID(event.getStringExtra());
+
+                if (position != -1) {
+                    TimelineListAdapter.taskList.get(position).setAuditResult(
+                            (String) event.getSerializableExtra());
+
+                    adapter.notifyDataSetChanged();
+                }
+                break;
+        }
     }
 
     /**
@@ -413,14 +394,14 @@ public class TimelineFragment extends Fragment implements ITimelineView,IUploadI
                     timelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
 
                     if (adapter.onLoadMoreListener == null) {
-                        adapter.setOnLoadMoreListener(()-> {
+                        adapter.setOnLoadMoreListener(() -> {
                             TimelineListAdapter.taskList.add(null);
                             adapter.notifyItemInserted(TimelineListAdapter.taskList.size() - 1);
 
                             refreshTimeline("loadMore",
-                                        (TimelineListAdapter.taskList
-                                                .get(TimelineListAdapter.taskList.size() - 2)
-                                                .getCreateTime() / 1000 - 1) + "");
+                                    (TimelineListAdapter.taskList
+                                            .get(TimelineListAdapter.taskList.size() - 2)
+                                            .getCreateTime() / 1000 - 1) + "");
                         });
                     }
                 } else {
@@ -465,7 +446,7 @@ public class TimelineFragment extends Fragment implements ITimelineView,IUploadI
     @Override
     public void onSendCommentResult(String result, String info) {
         if (Constants.SUCCESS.equals(result)) {
-
+            commentWindowIsShow = false;
         } else if (Constants.FAILED.equals(result)) {
             UtilBox.showSnackbar(getActivity(), info);
         }
@@ -483,13 +464,13 @@ public class TimelineFragment extends Fragment implements ITimelineView,IUploadI
                 break;
 
             case Constants.FAILED:
-                for (int i = 0; i < adapter.getItemCount(); i++) {
-                    if (TimelineListAdapter.taskList.get(i).getId().equals(taskID)) {
-                        TimelineListAdapter.taskList.get(i).setSendState(Task.FAILED);
-                        adapter.notifyDataSetChanged();
-                        break;
-                    }
+                int position = TimelineListAdapter.getTaskPositionWithID(taskID);
+
+                if (position != -1) {
+                    TimelineListAdapter.taskList.get(position).setSendState(Task.FAILED);
+                    adapter.notifyDataSetChanged();
                 }
+
                 UtilBox.showSnackbar(getActivity(), info);
                 break;
         }
@@ -499,6 +480,8 @@ public class TimelineFragment extends Fragment implements ITimelineView,IUploadI
     public void onAuditResult(String result, String info) {
         if (Constants.SUCCESS.equals(result)) {
             ll_audit.setVisibility(View.GONE);
+
+            auditWindowIsShow = false;
         }
 
         Toast.makeText(getActivity(), info, Toast.LENGTH_SHORT).show();
@@ -515,26 +498,25 @@ public class TimelineFragment extends Fragment implements ITimelineView,IUploadI
 
     @Override
     public void onUpdateTaskResult(String result, String info) {
+        int position;
         switch (result) {
             case Constants.SUCCESS:
-                for (int i = 0; i < adapter.getItemCount(); i++) {
-                    if (TimelineListAdapter.taskList.get(i).getId().equals(taskID)) {
-                        TimelineListAdapter.taskList.get(i).setSendState(Task.SUCCESS);
-                        adapter.notifyDataSetChanged();
-                        break;
-                    }
+                position = TimelineListAdapter.getTaskPositionWithID(taskID);
+
+                if (position != -1) {
+                    TimelineListAdapter.taskList.get(position).setSendState(Task.SUCCESS);
+                    adapter.notifyDataSetChanged();
                 }
+
                 break;
 
             default:
-                for (int i = 0; i < adapter.getItemCount(); i++) {
-                    if (TimelineListAdapter.taskList.get(i).getId().equals(taskID)) {
-                        TimelineListAdapter.taskList.get(i).setSendState(Task.FAILED);
-                        adapter.notifyDataSetChanged();
-                        break;
-                    }
+                position = TimelineListAdapter.getTaskPositionWithID(taskID);
+
+                if (position != -1) {
+                    TimelineListAdapter.taskList.get(position).setSendState(Task.FAILED);
+                    adapter.notifyDataSetChanged();
                 }
-                Toast.makeText(getActivity(), info, Toast.LENGTH_SHORT).show();
                 break;
         }
     }

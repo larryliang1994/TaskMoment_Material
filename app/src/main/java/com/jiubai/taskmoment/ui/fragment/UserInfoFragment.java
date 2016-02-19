@@ -17,6 +17,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.config.Config;
@@ -25,6 +26,7 @@ import com.jiubai.taskmoment.common.UtilBox;
 import com.jiubai.taskmoment.presenter.ChangeNicknamePresenterImpl;
 import com.jiubai.taskmoment.presenter.IUploadImagePresenter;
 import com.jiubai.taskmoment.presenter.UploadImagePresenterImpl;
+import com.jiubai.taskmoment.receiver.UpdateViewEvent;
 import com.jiubai.taskmoment.ui.activity.CheckPictureActivity;
 import com.jiubai.taskmoment.ui.activity.LoginActivity;
 import com.jiubai.taskmoment.ui.activity.PersonalTimelineActivity;
@@ -32,6 +34,9 @@ import com.jiubai.taskmoment.ui.iview.IChangeNicknameView;
 import com.jiubai.taskmoment.ui.iview.IUploadImageView;
 import com.jiubai.taskmoment.widget.RippleView;
 import com.nostra13.universalimageloader.core.ImageLoader;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,15 +49,23 @@ import me.drakeet.materialdialog.MaterialDialog;
  * 个人中心
  */
 public class UserInfoFragment extends Fragment implements IUploadImageView, IChangeNicknameView,
-        RippleView.OnRippleCompleteListener{
-    @Bind(R.id.rv_portrait) RippleView rv_portrait;
-    @Bind(R.id.rv_nickname) RippleView rv_nickname;
-    @Bind(R.id.rv_logout) RippleView rv_logout;
-    @Bind(R.id.rv_publish) RippleView rv_publish;
-    @Bind(R.id.rv_involved) RippleView rv_involved;
-    @Bind(R.id.rv_audit) RippleView rv_audit;
-    @Bind(R.id.iv_portrait) ImageView iv_portrait;
-    @Bind(R.id.tv_nickname) TextView tv_nickname;
+        RippleView.OnRippleCompleteListener {
+    @Bind(R.id.rv_portrait)
+    RippleView rv_portrait;
+    @Bind(R.id.rv_nickname)
+    RippleView rv_nickname;
+    @Bind(R.id.rv_logout)
+    RippleView rv_logout;
+    @Bind(R.id.rv_publish)
+    RippleView rv_publish;
+    @Bind(R.id.rv_involved)
+    RippleView rv_involved;
+    @Bind(R.id.rv_audit)
+    RippleView rv_audit;
+    @Bind(R.id.iv_portrait)
+    ImageView iv_portrait;
+    @Bind(R.id.tv_nickname)
+    TextView tv_nickname;
 
     private IUploadImagePresenter uploadImagePresenter;
     private TextView tv_input;
@@ -107,7 +120,7 @@ public class UserInfoFragment extends Fragment implements IUploadImageView, ICha
 
     @SuppressLint("InflateParams")
     private void showNicknameDialog(final String nickname) {
-         final View contentView = getActivity().getLayoutInflater()
+        final View contentView = getActivity().getLayoutInflater()
                 .inflate(R.layout.dialog_input, null);
 
         TextInputLayout til = (TextInputLayout) contentView.findViewById(R.id.til_input);
@@ -153,10 +166,30 @@ public class UserInfoFragment extends Fragment implements IUploadImageView, ICha
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
+    }
+
+    @Subscribe
+    public void onEvent(UpdateViewEvent event) {
+        switch (event.getAction()) {
+            case Constants.ACTION_CHANGE_NICKNAME:
+                tv_nickname.setText(Config.NICKNAME);
+                break;
+        }
+    }
+
+    @Override
     public void onChangeNicknameResult(String result, String info) {
-        if(Constants.SUCCESS.equals(result)){
+        if (Constants.SUCCESS.equals(result)) {
             dialog.dismiss();
-            tv_nickname.setText(Config.NICKNAME);
         } else {
             tv_input.setVisibility(View.VISIBLE);
             tv_input.setText(info);
@@ -281,7 +314,7 @@ public class UserInfoFragment extends Fragment implements IUploadImageView, ICha
 
     @Override
     public void onUploadImageResult(String result, String info) {
-        if(Constants.SUCCESS.equals(result)){
+        if (Constants.SUCCESS.equals(result)) {
             ImageLoader.getInstance().displayImage(Config.PORTRAIT + "?t=" + Config.TIME, iv_portrait);
         } else {
             UtilBox.showSnackbar(getActivity(), info);

@@ -2,15 +2,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#21282C"
+    android:background="#2B2C30"
     android:orientation="vertical">
 
     <ImageView
         android:id="@+id/btn_back"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:padding="9dp"
         android:layout_centerVertical="true"
-        android:padding="12dp"
         android:src="@drawable/back" />
 
     <TextView

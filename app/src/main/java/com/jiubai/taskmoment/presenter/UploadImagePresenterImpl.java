@@ -28,14 +28,14 @@ import java.util.List;
  * UploadPresenter实现类
  */
 public class UploadImagePresenterImpl implements IUploadImagePresenter {
-    private IUploadImageView iUploadImageView;
-    private Context context;
+    private IUploadImageView mIUploadImageView;
+    private Context mContext;
     private int uploadedNum = 0;
     private List<String> pictureList = new ArrayList<>();
 
     public UploadImagePresenterImpl(Context context, IUploadImageView iUploadImageView) {
-        this.context = context;
-        this.iUploadImageView = iUploadImageView;
+        this.mContext = context;
+        this.mIUploadImageView = iUploadImageView;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class UploadImagePresenterImpl implements IUploadImagePresenter {
             public void onUploadFailed(UploadTask uploadTask, FailReason failReason) {
                 System.out.println(failReason.getMessage());
 
-                iUploadImageView.onUploadImageResult(Constants.FAILED, "图片上传失败，请重试");
+                mIUploadImageView.onUploadImageResult(Constants.FAILED, "图片上传失败，请重试");
             }
 
             @Override
@@ -54,7 +54,7 @@ public class UploadImagePresenterImpl implements IUploadImagePresenter {
 
                 didUploadImageComplete(objectName, type);
 
-                iUploadImageView.onUploadImageResult(Constants.SUCCESS, "");
+                mIUploadImageView.onUploadImageResult(Constants.SUCCESS, "");
             }
 
         };
@@ -66,12 +66,12 @@ public class UploadImagePresenterImpl implements IUploadImagePresenter {
         // 压缩图片
         final Bitmap bitmap = UtilBox.getLocalBitmap(
                 path.get(uploadedNum),
-                UtilBox.getWidthPixels(context), UtilBox.getHeightPixels(context));
+                UtilBox.getWidthPixels(mContext), UtilBox.getHeightPixels(mContext));
 
         UploadListener uploadListener = new BaseUploadListener() {
             @Override
             public void onUploadFailed(UploadTask uploadTask, FailReason failReason) {
-                iUploadImageView.onUploadImagesResult(Constants.FAILED,
+                mIUploadImageView.onUploadImagesResult(Constants.FAILED,
                         "图片上传失败，请重试", pictureList);
             }
 
@@ -89,11 +89,11 @@ public class UploadImagePresenterImpl implements IUploadImagePresenter {
                         uploadImages(path, dir);
                     } catch (Exception exception) {
                         exception.printStackTrace();
-                        iUploadImageView.onUploadImagesResult(Constants.FAILED,
+                        mIUploadImageView.onUploadImagesResult(Constants.FAILED,
                                 "图片上传失败，请重试", pictureList);
                     }
                 } else {
-                    iUploadImageView.onUploadImagesResult(Constants.SUCCESS, "", pictureList);
+                    mIUploadImageView.onUploadImagesResult(Constants.SUCCESS, "", pictureList);
                 }
             }
         };

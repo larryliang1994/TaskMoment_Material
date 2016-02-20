@@ -22,12 +22,12 @@ import java.util.Locale;
  * CommentPresenter实现类
  */
 public class CommentPresenterImpl implements ICommentPresenter {
-    private ICommentView iCommentView;
-    private Context context;
+    private ICommentView mICommentView;
+    private Context mContext;
 
     public CommentPresenterImpl(Context context, ICommentView iCommentView) {
-        this.context = context;
-        this.iCommentView = iCommentView;
+        this.mContext = context;
+        this.mICommentView = iCommentView;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class CommentPresenterImpl implements ICommentPresenter {
                         if (!Constants.SUCCESS.equals(status)) {
                             System.out.println(response);
 
-                            iCommentView.onSendCommentResult(status, "发送失败，请重试");
+                            mICommentView.onSendCommentResult(status, "发送失败，请重试");
 
                         } else {
                             Comment comment = null;
@@ -64,7 +64,7 @@ public class CommentPresenterImpl implements ICommentPresenter {
                             EventBus.getDefault().post(
                                     new UpdateViewEvent(Constants.ACTION_SEND_COMMENT, taskID, comment));
 
-                            iCommentView.onSendCommentResult(Constants.SUCCESS, "");
+                            mICommentView.onSendCommentResult(Constants.SUCCESS, "");
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -73,7 +73,7 @@ public class CommentPresenterImpl implements ICommentPresenter {
                 volleyError -> {
                     volleyError.printStackTrace();
 
-                    iCommentView.onSendCommentResult(Constants.FAILED, "评论发送失败，请重试");
+                    mICommentView.onSendCommentResult(Constants.FAILED, "评论发送失败，请重试");
                 });
     }
 }

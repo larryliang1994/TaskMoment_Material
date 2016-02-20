@@ -21,7 +21,6 @@ import android.app.ProgressDialog;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -42,7 +41,6 @@ import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.zxing.camera.CameraManager;
-import com.jiubai.taskmoment.zxing.camera.open.OpenCameraInterface;
 import com.jiubai.taskmoment.zxing.decode.DecodeThread;
 import com.jiubai.taskmoment.zxing.utils.BeepManager;
 import com.jiubai.taskmoment.zxing.utils.CaptureActivityHandler;
@@ -61,23 +59,23 @@ import me.drakeet.materialdialog.MaterialDialog;
 
 public final class CaptureActivity extends Activity implements SurfaceHolder.Callback {
     @Bind(R.id.capture_preview)
-    SurfaceView scanPreview;
+    SurfaceView mScanSurfaceView;
 
     @Bind(R.id.capture_container)
-    RelativeLayout scanContainer;
+    RelativeLayout mScanContainerRelativeLayout;
 
     @Bind(R.id.capture_crop_view)
-    RelativeLayout scanCropView;
+    RelativeLayout mScanCropViewRelativeLayout;
 
     @Bind(R.id.capture_scan_line)
-    ImageView scanLine;
+    ImageView mScanLineImageView;
 
     private static final String TAG = CaptureActivity.class.getSimpleName();
 
-    private CameraManager cameraManager;
-    private CaptureActivityHandler handler;
-    private InactivityTimer inactivityTimer;
-    private BeepManager beepManager;
+    private CameraManager mCameraManager;
+    private CaptureActivityHandler mCaptureActivityHandler;
+    private InactivityTimer mInactivityTimer;
+    private BeepManager mBeepManager;
 
     private Rect mCropRect = null;
     private boolean isHasSurface = false;
@@ -93,8 +91,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
         ButterKnife.bind(this);
 
-        inactivityTimer = new InactivityTimer(this);
-        beepManager = new BeepManager(this);
+        mInactivityTimer = new InactivityTimer(this);
+        mBeepManager = new BeepManager(this);
 
         TranslateAnimation animation = new TranslateAnimation(
                 Animation.RELATIVE_TO_PARENT, 0.0f,
@@ -104,7 +102,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         animation.setDuration(4500);
         animation.setRepeatCount(-1);
         animation.setRepeatMode(Animation.RESTART);
-        scanLine.startAnimation(animation);
+        mScanLineImageView.startAnimation(animation);
     }
 
     @Override
@@ -112,35 +110,35 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         super.onResume();
 
         // CameraManager must be initialized here, not in onCreate().
-        cameraManager = new CameraManager(getApplication());
+        mCameraManager = new CameraManager(getApplication());
 
-        handler = null;
+        mCaptureActivityHandler = null;
 
         if (isHasSurface) {
             // The activity was paused but not stopped, so the surface still
             // exists. Therefore
             // surfaceCreated() won't be called, so init the camera here.
-            initCamera(scanPreview.getHolder());
+            initCamera(mScanSurfaceView.getHolder());
         } else {
             // Install the callback and wait for surfaceCreated() to init the
             // camera.
-            scanPreview.getHolder().addCallback(this);
+            mScanSurfaceView.getHolder().addCallback(this);
         }
 
-        inactivityTimer.onResume();
+        mInactivityTimer.onResume();
     }
 
     @Override
     protected void onPause() {
-        if (handler != null) {
-            handler.quitSynchronously();
-            handler = null;
+        if (mCaptureActivityHandler != null) {
+            mCaptureActivityHandler.quitSynchronously();
+            mCaptureActivityHandler = null;
         }
-        inactivityTimer.onPause();
-        beepManager.close();
-        cameraManager.closeDriver();
+        mInactivityTimer.onPause();
+        mBeepManager.close();
+        mCameraManager.closeDriver();
         if (!isHasSurface) {
-            scanPreview.getHolder().removeCallback(this);
+            mScanSurfaceView.getHolder().removeCallback(this);
         }
         super.onPause();
     }
@@ -148,21 +146,21 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     @Override
     protected void onDestroy() {
 
-        scanPreview.getHolder().removeCallback(this);
-        scanPreview.getHolder().getSurface().release();
-        inactivityTimer.shutdown();
-        cameraManager.closeDriver();
-        cameraManager.stopPreview();
+        mScanSurfaceView.getHolder().removeCallback(this);
+        mScanSurfaceView.getHolder().getSurface().release();
+        mInactivityTimer.shutdown();
+        mCameraManager.closeDriver();
+        mCameraManager.stopPreview();
 
         super.onDestroy();
     }
 
     public Handler getHandler() {
-        return handler;
+        return mCaptureActivityHandler;
     }
 
     public CameraManager getCameraManager() {
-        return cameraManager;
+        return mCameraManager;
     }
 
     @Override
@@ -190,8 +188,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
      * @param bundle    The extras
      */
     public void handleDecode(Result rawResult, Bundle bundle) {
-        inactivityTimer.onActivity();
-        beepManager.playBeepSoundAndVibrate();
+        mInactivityTimer.onActivity();
+        mBeepManager.playBeepSoundAndVibrate();
 
         bundle.putInt("width", mCropRect.width());
         bundle.putInt("height", mCropRect.height());
@@ -325,16 +323,16 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         if (surfaceHolder == null) {
             throw new IllegalStateException("No SurfaceHolder provided");
         }
-        if (cameraManager.isOpen()) {
+        if (mCameraManager.isOpen()) {
             Log.w(TAG, "initCamera() while already open -- late SurfaceView callback?");
             return;
         }
         try {
-            cameraManager.openDriver(surfaceHolder);
+            mCameraManager.openDriver(surfaceHolder);
             // Creating the handler starts the preview, which can also throw a
             // RuntimeException.
-            if (handler == null) {
-                handler = new CaptureActivityHandler(this, cameraManager, DecodeThread.ALL_MODE);
+            if (mCaptureActivityHandler == null) {
+                mCaptureActivityHandler = new CaptureActivityHandler(this, mCameraManager, DecodeThread.ALL_MODE);
             }
 
             initCrop();
@@ -363,8 +361,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     @SuppressWarnings("unused")
     public void restartPreviewAfterDelay(long delayMS) {
-        if (handler != null) {
-            handler.sendEmptyMessageDelayed(R.id.restart_preview, delayMS);
+        if (mCaptureActivityHandler != null) {
+            mCaptureActivityHandler.sendEmptyMessageDelayed(R.id.restart_preview, delayMS);
         }
     }
 
@@ -377,22 +375,22 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
      */
     @SuppressWarnings("SuspiciousNameCombination")
     private void initCrop() {
-        int cameraWidth = cameraManager.getCameraResolution().y;
-        int cameraHeight = cameraManager.getCameraResolution().x;
+        int cameraWidth = mCameraManager.getCameraResolution().y;
+        int cameraHeight = mCameraManager.getCameraResolution().x;
 
         /** 获取布局中扫描框的位置信息 */
         int[] location = new int[2];
-        scanCropView.getLocationInWindow(location);
+        mScanCropViewRelativeLayout.getLocationInWindow(location);
 
         int cropLeft = location[0];
         int cropTop = location[1] - getStatusBarHeight();
 
-        int cropWidth = scanCropView.getWidth();
-        int cropHeight = scanCropView.getHeight();
+        int cropWidth = mScanCropViewRelativeLayout.getWidth();
+        int cropHeight = mScanCropViewRelativeLayout.getHeight();
 
         /** 获取布局容器的宽高 */
-        int containerWidth = scanContainer.getWidth();
-        int containerHeight = scanContainer.getHeight();
+        int containerWidth = mScanContainerRelativeLayout.getWidth();
+        int containerHeight = mScanContainerRelativeLayout.getHeight();
 
         /** 计算最终截取的矩形的左上角顶点x坐标 */
         int x = cropLeft * cameraWidth / containerWidth;

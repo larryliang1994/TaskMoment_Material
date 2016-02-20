@@ -29,14 +29,14 @@ import butterknife.ButterKnife;
  */
 public class PersonalInfoActivity extends BaseActivity implements IUploadImageView {
     @Bind(R.id.lv_personalInfo)
-    ListView lv;
+    ListView mListView;
 
     @Bind(R.id.toolbar)
-    Toolbar toolbar;
+    Toolbar mToolbar;
 
     private String mid, nickname;
-    private PersonalInfoAdapter adapter;
-    private IUploadImagePresenter uploadImagePresenter;
+    private PersonalInfoAdapter mAdapter;
+    private IUploadImagePresenter mUploadImagePresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,16 +61,16 @@ public class PersonalInfoActivity extends BaseActivity implements IUploadImageVi
     private void initView() {
         initToolbar();
 
-        adapter = new PersonalInfoAdapter(this, mid, nickname);
-        lv.setAdapter(adapter);
+        mAdapter = new PersonalInfoAdapter(this, mid, nickname);
+        mListView.setAdapter(mAdapter);
 
-        uploadImagePresenter = new UploadImagePresenterImpl(this, this);
+        mUploadImagePresenter = new UploadImagePresenterImpl(this, this);
     }
 
     private void initToolbar() {
-        setSupportActionBar(toolbar);
-        toolbar.setTitle(nickname);
-        toolbar.setNavigationOnClickListener(v -> finish());
+        setSupportActionBar(mToolbar);
+        mToolbar.setTitle(nickname);
+        mToolbar.setNavigationOnClickListener(v -> finish());
     }
 
     @Override
@@ -83,7 +83,7 @@ public class PersonalInfoActivity extends BaseActivity implements IUploadImageVi
     public void onEvent(UpdateViewEvent event){
         switch (event.getAction()) {
             case Constants.ACTION_CHANGE_NICKNAME:
-                adapter.notifyDataSetChanged();
+                mAdapter.notifyDataSetChanged();
                 break;
         }
     }
@@ -104,7 +104,7 @@ public class PersonalInfoActivity extends BaseActivity implements IUploadImageVi
 
                     final String objectName = Config.MID + ".jpg";
 
-                    uploadImagePresenter.doUploadImage(
+                    mUploadImagePresenter.doUploadImage(
                             UtilBox.compressImage(bitmap, Constants.SIZE_PORTRAIT),
                             Constants.DIR_PORTRAIT, objectName, Constants.SP_KEY_PORTRAIT);
                 }
@@ -115,7 +115,7 @@ public class PersonalInfoActivity extends BaseActivity implements IUploadImageVi
     @Override
     public void onUploadImageResult(String result, String info) {
         if(Constants.SUCCESS.equals(result)){
-            adapter.notifyDataSetChanged();
+            mAdapter.notifyDataSetChanged();
         } else {
             UtilBox.showSnackbar(this, info);
         }

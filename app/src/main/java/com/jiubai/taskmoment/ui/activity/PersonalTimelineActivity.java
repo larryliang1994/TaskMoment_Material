@@ -55,40 +55,40 @@ import butterknife.ButterKnife;
 public class PersonalTimelineActivity extends BaseActivity
         implements ITimelineView, ICommentView, IAuditView {
     @Bind(R.id.iv_portrait)
-    ImageView iv_portrait;
+    ImageView mPortraitImageView;
 
     @Bind(R.id.tv_loading)
-    TextView tv_loading;
+    TextView mLoadingTextView;
 
     @Bind(R.id.tv_personal_nickname)
-    TextView tv_nickname;
+    TextView mNicknameTextView;
 
     @Bind(R.id.tv_space_comment)
-    TextView tv_space_comment;
+    TextView mCommentSpaceTextView;
 
     @Bind(R.id.tv_space_audit)
-    TextView tv_space_audit;
+    TextView mAuditSpaceTextView;
 
     @Bind(R.id.iv_companyBackground)
-    ImageView iv_companyBackground;
+    ImageView mCompanyBackgroundImageView;
 
     @Bind(R.id.sv_personal)
-    BorderScrollView sv;
+    BorderScrollView mScrollView;
 
     @Bind(R.id.lv_personal)
-    ListView lv;
+    ListView mListView;
 
     @Bind(R.id.toolbar)
-    Toolbar toolbar;
+    Toolbar mToolbar;
 
-    private static LinearLayout ll_comment, ll_audit;
-    private static PersonalTimelineAdapter adapter;
+    private static LinearLayout sCommentLinearLayout, sAuditLinearLayout;
+    private PersonalTimelineAdapter mAdapter;
     public static boolean commentWindowIsShow = false, auditWindowIsShow = false;
-    private static ICommentPresenter commentPresenter;
-    private static IAuditPresenter auditPresenter;
+    private static ICommentPresenter mCommentPresenter;
+    private static IAuditPresenter mAuditPresenter;
 
-    private ITimelinePresenter timelinePresenter;
-    private View footerView;
+    private ITimelinePresenter mTimelinePresenter;
+    private View mFooterView;
     private String mid, isAudit, isInvolved;
     private boolean isBottomRefreshing = false;
 
@@ -119,33 +119,33 @@ public class PersonalTimelineActivity extends BaseActivity
 
         getUserInfo();
 
-        lv = (ListView) findViewById(R.id.lv_personal);
-        ll_comment = (LinearLayout) findViewById(R.id.ll_comment);
-        ll_audit = (LinearLayout) findViewById(R.id.ll_audit);
+        mListView = (ListView) findViewById(R.id.lv_personal);
+        sCommentLinearLayout = (LinearLayout) findViewById(R.id.ll_comment);
+        sAuditLinearLayout = (LinearLayout) findViewById(R.id.ll_audit);
 
-        footerView = LayoutInflater.from(this).inflate(R.layout.load_more_timeline, null);
+        mFooterView = LayoutInflater.from(this).inflate(R.layout.load_more_timeline, null);
 
-        tv_space_comment.setOnTouchListener((v, event) -> {
+        mCommentSpaceTextView.setOnTouchListener((v, event) -> {
             if (commentWindowIsShow) {
-                ll_comment.setVisibility(View.GONE);
+                sCommentLinearLayout.setVisibility(View.GONE);
                 commentWindowIsShow = false;
 
                 // 关闭键盘
-                UtilBox.toggleSoftInput(ll_comment, false);
+                UtilBox.toggleSoftInput(sCommentLinearLayout, false);
             }
             return false;
         });
 
-        tv_space_audit.setOnTouchListener((v, event) -> {
+        mAuditSpaceTextView.setOnTouchListener((v, event) -> {
             if (auditWindowIsShow) {
-                ll_audit.setVisibility(View.GONE);
+                sAuditLinearLayout.setVisibility(View.GONE);
 
                 auditWindowIsShow = false;
             }
             return false;
         });
 
-        sv.setOnBorderListener(new BorderScrollView.OnBorderListener() {
+        mScrollView.setOnBorderListener(new BorderScrollView.OnBorderListener() {
 
             @Override
             public void onTop() {
@@ -154,7 +154,7 @@ public class PersonalTimelineActivity extends BaseActivity
             @Override
             public void onBottom() {
                 // 有footerView并且不是正在加载
-                if (lv.getFooterViewsCount() > 0 && !isBottomRefreshing) {
+                if (mListView.getFooterViewsCount() > 0 && !isBottomRefreshing) {
                     isBottomRefreshing = true;
 
                     // 参数应为最后一条任务的时间减1秒
@@ -166,30 +166,30 @@ public class PersonalTimelineActivity extends BaseActivity
         });
 
         ImageLoader.getInstance().displayImage(
-                Config.COMPANY_BACKGROUND + "?t=" + Config.TIME, iv_companyBackground);
+                Config.COMPANY_BACKGROUND + "?t=" + Config.TIME, mCompanyBackgroundImageView);
 
-        commentPresenter = new CommentPresenterImpl(this, this);
-        auditPresenter = new AuditPresenterImpl(this, this);
-        timelinePresenter = new TimelinePresenterImpl(this);
+        mCommentPresenter = new CommentPresenterImpl(this, this);
+        mAuditPresenter = new AuditPresenterImpl(this, this);
+        mTimelinePresenter = new TimelinePresenterImpl(this);
 
         refreshTimeline("refresh", Calendar.getInstance(Locale.CHINA).getTimeInMillis() / 1000 + "");
     }
 
     private void initToolbar() {
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationOnClickListener(v -> finish());
+        setSupportActionBar(mToolbar);
+        mToolbar.setNavigationOnClickListener(v -> finish());
     }
 
     /**
      * 初始化头像
      */
     private void initPortrait(String name) {
-        iv_portrait.setFocusable(true);
-        iv_portrait.setFocusableInTouchMode(true);
-        iv_portrait.requestFocus();
+        mPortraitImageView.setFocusable(true);
+        mPortraitImageView.setFocusableInTouchMode(true);
+        mPortraitImageView.requestFocus();
         ImageLoader.getInstance().displayImage(
-                Urls.MEDIA_CENTER_PORTRAIT + mid + ".jpg" + "?t=" + Config.TIME, iv_portrait);
-        iv_portrait.setOnClickListener(v -> {
+                Urls.MEDIA_CENTER_PORTRAIT + mid + ".jpg" + "?t=" + Config.TIME, mPortraitImageView);
+        mPortraitImageView.setOnClickListener(v -> {
             Intent intent = new Intent(PersonalTimelineActivity.this, PersonalInfoActivity.class);
 
             intent.putExtra("nickname", name);
@@ -211,7 +211,7 @@ public class PersonalTimelineActivity extends BaseActivity
             return;
         }
 
-        timelinePresenter.doPullTimeline(request_time, type, mid, isAudit, isInvolved);
+        mTimelinePresenter.doPullTimeline(request_time, type, mid, isAudit, isInvolved);
     }
 
     /**
@@ -221,23 +221,23 @@ public class PersonalTimelineActivity extends BaseActivity
      */
     private void resetListViewHeight(final String type) {
         runOnUiThread(() -> {
-            lv.setAdapter(adapter);
-            UtilBox.setListViewHeightBasedOnChildren(lv);
+            mListView.setAdapter(mAdapter);
+            UtilBox.setListViewHeightBasedOnChildren(mListView);
 
             if ("loadMore".equals(type)) {
                 isBottomRefreshing = false;
             } else {
-                int svHeight = sv.getHeight();
+                int svHeight = mScrollView.getHeight();
 
-                int lvHeight = lv.getLayoutParams().height;
+                int lvHeight = mListView.getLayoutParams().height;
 
                 // 312是除去上部其他组件高度后的剩余空间
                 if (lvHeight >
                         svHeight - UtilBox.dip2px(PersonalTimelineActivity.this, 312)
-                        && lv.getFooterViewsCount() == 0) {
+                        && mListView.getFooterViewsCount() == 0) {
 
-                    lv.addFooterView(footerView);
-                    UtilBox.setListViewHeightBasedOnChildren(lv);
+                    mListView.addFooterView(mFooterView);
+                    UtilBox.setListViewHeightBasedOnChildren(mListView);
                 }
             }
         });
@@ -251,8 +251,8 @@ public class PersonalTimelineActivity extends BaseActivity
             @Override
             public void successCallback() {
                 String name = MemberListAdapter.getMemberWithID(mid).getName();
-                toolbar.setTitle(name);
-                tv_nickname.setText(name);
+                mToolbar.setTitle(name);
+                mNicknameTextView.setText(name);
 
                 initPortrait(name);
             }
@@ -277,13 +277,13 @@ public class PersonalTimelineActivity extends BaseActivity
         commentWindowIsShow = true;
 
         if (auditWindowIsShow) {
-            ll_audit.setVisibility(View.GONE);
+            sAuditLinearLayout.setVisibility(View.GONE);
 
             auditWindowIsShow = false;
         }
 
-        ll_comment.setVisibility(View.VISIBLE);
-        final EditText edt_content = (EditText) ll_comment.findViewById(R.id.edt_comment_content);
+        sCommentLinearLayout.setVisibility(View.VISIBLE);
+        final EditText edt_content = (EditText) sCommentLinearLayout.findViewById(R.id.edt_comment_content);
         if (!"".equals(receiver)) {
             edt_content.setHint("回复" + receiver + ":");
         } else {
@@ -293,9 +293,9 @@ public class PersonalTimelineActivity extends BaseActivity
         edt_content.requestFocus();
 
         // 弹出键盘
-        UtilBox.toggleSoftInput(ll_comment, true);
+        UtilBox.toggleSoftInput(sCommentLinearLayout, true);
 
-        Button btn_send = (Button) ll_comment.findViewById(R.id.btn_comment_send);
+        Button btn_send = (Button) sCommentLinearLayout.findViewById(R.id.btn_comment_send);
         btn_send.setOnClickListener(v -> {
             if (edt_content.getText().toString().isEmpty()) {
                 Toast.makeText(context,
@@ -309,11 +309,11 @@ public class PersonalTimelineActivity extends BaseActivity
                 return;
             }
 
-            ll_comment.setVisibility(View.GONE);
+            sCommentLinearLayout.setVisibility(View.GONE);
 
-            UtilBox.toggleSoftInput(ll_comment, false);
+            UtilBox.toggleSoftInput(sCommentLinearLayout, false);
 
-            commentPresenter.doSendComment(taskID, receiver, receiverID,
+            mCommentPresenter.doSendComment(taskID, receiver, receiverID,
                     edt_content.getText().toString());
         });
     }
@@ -325,14 +325,14 @@ public class PersonalTimelineActivity extends BaseActivity
         auditWindowIsShow = true;
 
         if (commentWindowIsShow) {
-            ll_comment.setVisibility(View.GONE);
+            sCommentLinearLayout.setVisibility(View.GONE);
             commentWindowIsShow = false;
         }
 
-        ll_audit.setVisibility(View.VISIBLE);
+        sAuditLinearLayout.setVisibility(View.VISIBLE);
 
         final int[] audit_result = {3};
-        RadioGroup radioGroup = (RadioGroup) ll_audit.findViewById(R.id.rg_audit);
+        RadioGroup radioGroup = (RadioGroup) sAuditLinearLayout.findViewById(R.id.rg_audit);
         radioGroup.check(R.id.rb_complete);
         radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             switch (checkedId) {
@@ -350,14 +350,14 @@ public class PersonalTimelineActivity extends BaseActivity
             }
         });
 
-        Button btn_send = (Button) ll_audit.findViewById(R.id.btn_audit_send);
+        Button btn_send = (Button) sAuditLinearLayout.findViewById(R.id.btn_audit_send);
         btn_send.setOnClickListener(v -> {
             if (!Config.IS_CONNECTED) {
                 UtilBox.showSnackbar(context, R.string.cant_access_network);
                 return;
             }
 
-            auditPresenter.doAudit(taskID, audit_result[0] + "");
+            mAuditPresenter.doAudit(taskID, audit_result[0] + "");
         });
     }
 
@@ -376,8 +376,8 @@ public class PersonalTimelineActivity extends BaseActivity
 
                 if (position != -1) {
                     PersonalTimelineAdapter.taskList.remove(position);
-                    adapter.notifyDataSetChanged();
-                    UtilBox.setListViewHeightBasedOnChildren(lv);
+                    mAdapter.notifyDataSetChanged();
+                    UtilBox.setListViewHeightBasedOnChildren(mListView);
                 }
 
                 break;
@@ -394,8 +394,8 @@ public class PersonalTimelineActivity extends BaseActivity
                             != comment.getTime()) {
 
                         PersonalTimelineAdapter.taskList.get(position).getComments().add(comment);
-                        adapter.notifyDataSetChanged();
-                        UtilBox.setListViewHeightBasedOnChildren(lv);
+                        mAdapter.notifyDataSetChanged();
+                        UtilBox.setListViewHeightBasedOnChildren(mListView);
 
                         break;
                     }
@@ -410,20 +410,20 @@ public class PersonalTimelineActivity extends BaseActivity
                     PersonalTimelineAdapter.taskList.get(
                             position).setAuditResult((String) event.getSerializableExtra());
 
-                    adapter.notifyDataSetChanged();
-                    UtilBox.setListViewHeightBasedOnChildren(lv);
+                    mAdapter.notifyDataSetChanged();
+                    UtilBox.setListViewHeightBasedOnChildren(mListView);
                 }
 
                 break;
 
             case Constants.ACTION_CHANGE_NICKNAME:
-                toolbar.setTitle(Config.NICKNAME);
-                tv_nickname.setText(Config.NICKNAME);
+                mToolbar.setTitle(Config.NICKNAME);
+                mNicknameTextView.setText(Config.NICKNAME);
                 break;
 
             case Constants.ACTION_CHANGE_PORTRAIT:
                 ImageLoader.getInstance().displayImage(
-                        Config.PORTRAIT + "?t=" + Config.TIME, iv_portrait);
+                        Config.PORTRAIT + "?t=" + Config.TIME, mPortraitImageView);
                 break;
         }
     }
@@ -431,7 +431,7 @@ public class PersonalTimelineActivity extends BaseActivity
     @Override
     public void onAuditResult(String result, String info) {
         if (Constants.SUCCESS.equals(result)) {
-            ll_audit.setVisibility(View.GONE);
+            sAuditLinearLayout.setVisibility(View.GONE);
 
             auditWindowIsShow = false;
         }
@@ -454,10 +454,10 @@ public class PersonalTimelineActivity extends BaseActivity
             case Constants.SUCCESS:
                 // 先实例出适配器
                 if ("refresh".equals(type)) {
-                    adapter = new PersonalTimelineAdapter(this, true, info);
-                    timelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
+                    mAdapter = new PersonalTimelineAdapter(this, true, info);
+                    mTimelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
                 } else {
-                    adapter = new PersonalTimelineAdapter(this, false, info);
+                    mAdapter = new PersonalTimelineAdapter(this, false, info);
                 }
 
                 // 设置适配器，并重新设置ListView的高度
@@ -467,11 +467,11 @@ public class PersonalTimelineActivity extends BaseActivity
             case Constants.NOMORE:
                 // 没有更多了，就去掉footerView
                 if ("refresh".equals(type)) {
-                    timelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
+                    mTimelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
                 } else {
-                    lv.removeFooterView(footerView);
+                    mListView.removeFooterView(mFooterView);
 
-                    UtilBox.setListViewHeightBasedOnChildren(lv);
+                    UtilBox.setListViewHeightBasedOnChildren(mListView);
 
                     isBottomRefreshing = false;
                 }
@@ -482,7 +482,7 @@ public class PersonalTimelineActivity extends BaseActivity
             case Constants.FAILED:
             default:
                 if ("refresh".equals(type)) {
-                    timelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
+                    mTimelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
                 } else {
                     isBottomRefreshing = false;
                 }
@@ -500,9 +500,9 @@ public class PersonalTimelineActivity extends BaseActivity
     @Override
     public void onSetSwipeRefreshVisibility(int visibility) {
         if (visibility == Constants.VISIBLE) {
-            tv_loading.setVisibility(View.VISIBLE);
+            mLoadingTextView.setVisibility(View.VISIBLE);
         } else if (visibility == Constants.INVISIBLE) {
-            tv_loading.setVisibility(View.GONE);
+            mLoadingTextView.setVisibility(View.GONE);
         }
     }
 }

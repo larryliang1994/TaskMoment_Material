@@ -7,6 +7,7 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -47,33 +48,33 @@ import me.nereo.multi_image_selector.MultiImageSelectorActivity;
 public class TaskPublishActivity extends BaseActivity implements ITaskView,
         DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
     @Bind(R.id.tv_space)
-    TextView tv_space;
+    TextView mSpaceTextView;
 
     @Bind(R.id.edt_deadline)
-    EditText edt_deadline;
+    EditText mDeadlineEditText;
 
     @Bind(R.id.edt_startTime)
-    EditText edt_startTime;
+    EditText mStartTimeEditText;
 
     @Bind(R.id.edt_desc)
-    EditText edt_desc;
+    EditText mDescEditText;
 
     @Bind(R.id.toolbar)
-    Toolbar toolbar;
+    Toolbar mToolbar;
 
     @Bind(R.id.gv_publish)
-    GridView gv;
+    GridView mGridView;
 
     @Bind(R.id.tv_grade)
-    TextView tv_grade;
+    TextView mGradeTextView;
 
     @Bind(R.id.sb_grade)
-    SeekBar sb_grade;
+    SeekBar mGradeSeekBar;
 
-    private ITaskPresenter taskPresenter;
+    private ITaskPresenter mTaskPresenter;
     private String date;
     private boolean isDeadline = false, isStartTime = false;
-    private PublishPictureAdapter adpt_publishPicture;
+    private PublishPictureAdapter mPublishPictureAdapter;
     private int grade = 4;
     private int executor = -1, supervisor = -1, auditor = -1;
     private int year_deadline = 0, month_deadline = 0, day_deadline = 0,
@@ -102,11 +103,11 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_ok:
-                UtilBox.toggleSoftInput(edt_desc, false);
+                UtilBox.toggleSoftInput(mDescEditText, false);
 
                 if (!Config.IS_CONNECTED) {
                     UtilBox.showSnackbar(this, R.string.cant_access_network);
-                } else if (edt_desc.getText().toString().length() == 0) {
+                } else if (TextUtils.isEmpty(mDescEditText.getText().toString())) {
                     UtilBox.showSnackbar(this, "请填入任务描述");
                 } else if (executor == -1) {
                     UtilBox.showSnackbar(this, "请选择执行者");
@@ -120,21 +121,21 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
                     UtilBox.showSnackbar(this, "请填入开始时间");
                 } else {
                     // 先把多余的添加图片入口删掉
-                    if (adpt_publishPicture.pictureList != null
-                            && !adpt_publishPicture.pictureList.isEmpty()
-                            && adpt_publishPicture.actualCount < 9) {
-                        adpt_publishPicture.pictureList.remove(
-                                adpt_publishPicture.pictureList.size() - 1);
+                    if (mPublishPictureAdapter.pictureList != null
+                            && !mPublishPictureAdapter.pictureList.isEmpty()
+                            && mPublishPictureAdapter.actualCount < 9) {
+                        mPublishPictureAdapter.pictureList.remove(
+                                mPublishPictureAdapter.pictureList.size() - 1);
                     }
 
-                    taskPresenter.doPublishTask(
+                    mTaskPresenter.doPublishTask(
                             String.valueOf(grade),
-                            edt_desc.getText().toString(),
+                            mDescEditText.getText().toString(),
                             MemberListAdapter.memberList.get(executor).getMid(),
                             MemberListAdapter.memberList.get(supervisor).getMid(),
                             MemberListAdapter.memberList.get(auditor).getMid(),
-                            UtilBox.getStringToDate(edt_deadline.getText().toString()) / 1000 + "",
-                            UtilBox.getStringToDate(edt_startTime.getText().toString()) / 1000 + ""
+                            UtilBox.getStringToDate(mDeadlineEditText.getText().toString()) / 1000 + "",
+                            UtilBox.getStringToDate(mStartTimeEditText.getText().toString()) / 1000 + ""
                     );
                 }
                 break;
@@ -149,24 +150,24 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
     private void initView() {
         initToolbar();
 
-        adpt_publishPicture = new PublishPictureAdapter(this, new ArrayList<>());
-        gv.setAdapter(adpt_publishPicture);
+        mPublishPictureAdapter = new PublishPictureAdapter(this, new ArrayList<>());
+        mGridView.setAdapter(mPublishPictureAdapter);
 
-        tv_space.setOnTouchListener((v, event) -> {
-            UtilBox.toggleSoftInput(edt_desc, false);
+        mSpaceTextView.setOnTouchListener((v, event) -> {
+            UtilBox.toggleSoftInput(mDescEditText, false);
 
             return false;
         });
 
-        sb_grade.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        mGradeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 switch (progress) {
-                    case 0: tv_grade.setText("D");  grade = 5;  break;
-                    case 1: tv_grade.setText("C");  grade = 4;  break;
-                    case 2: tv_grade.setText("B");  grade = 3;  break;
-                    case 3: tv_grade.setText("A");  grade = 2;  break;
-                    case 4: tv_grade.setText("S");  grade = 1;  break;
+                    case 0: mGradeTextView.setText("D");  grade = 5;  break;
+                    case 1: mGradeTextView.setText("C");  grade = 4;  break;
+                    case 2: mGradeTextView.setText("B");  grade = 3;  break;
+                    case 3: mGradeTextView.setText("A");  grade = 2;  break;
+                    case 4: mGradeTextView.setText("S");  grade = 1;  break;
                 }
             }
 
@@ -179,7 +180,7 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
             }
         });
 
-        taskPresenter = new TaskPresenterImpl(this);
+        mTaskPresenter = new TaskPresenterImpl(this);
     }
 
     /**
@@ -187,17 +188,17 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
      */
     private void setResultAndFinish(String taskID) {
         Intent intent = new Intent();
-        intent.putExtra("grade", tv_grade.getText().toString());
-        intent.putExtra("content", edt_desc.getText().toString());
-        intent.putExtra("pictureList", adpt_publishPicture.pictureList);
+        intent.putExtra("grade", mGradeTextView.getText().toString());
+        intent.putExtra("content", mDescEditText.getText().toString());
+        intent.putExtra("pictureList", mPublishPictureAdapter.pictureList);
         intent.putExtra("executor", MemberListAdapter.memberList.get(executor).getMid());
         intent.putExtra("supervisor", MemberListAdapter.memberList.get(supervisor).getMid());
         intent.putExtra("auditor", MemberListAdapter.memberList.get(auditor).getMid());
         intent.putExtra("taskID", taskID);
         intent.putExtra("deadline",
-                UtilBox.getStringToDate(edt_deadline.getText().toString()));
+                UtilBox.getStringToDate(mDeadlineEditText.getText().toString()));
         intent.putExtra("publish_time",
-                UtilBox.getStringToDate(edt_startTime.getText().toString()));
+                UtilBox.getStringToDate(mStartTimeEditText.getText().toString()));
         intent.putExtra("create_time",
                 Calendar.getInstance(Locale.CHINA).getTimeInMillis());
 
@@ -206,8 +207,8 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
     }
 
     private void initToolbar() {
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationOnClickListener(v -> finish());
+        setSupportActionBar(mToolbar);
+        mToolbar.setNavigationOnClickListener(v -> finish());
     }
 
     @OnClick({R.id.edt_deadline, R.id.edt_startTime,
@@ -407,14 +408,14 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
 
             isDeadline = false;
 
-            edt_deadline.setText(date);
+            mDeadlineEditText.setText(date);
         } else if (isStartTime) {
             hour_startTime = hourOfDay;
             minute_startTime = minute;
 
             isStartTime = false;
 
-            edt_startTime.setText(date);
+            mStartTimeEditText.setText(date);
         }
 
         date = null;
@@ -430,18 +431,18 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
                     ArrayList<String> path
                             = data.getStringArrayListExtra(MultiImageSelectorActivity.EXTRA_RESULT);
 
-                    adpt_publishPicture.insertPicture(path);
-                    gv.setAdapter(adpt_publishPicture);
-                    UtilBox.setGridViewHeightBasedOnChildren(gv, false);
+                    mPublishPictureAdapter.insertPicture(path);
+                    mGridView.setAdapter(mPublishPictureAdapter);
+                    UtilBox.setGridViewHeightBasedOnChildren(mGridView, false);
                 }
                 break;
 
             case Constants.CODE_CHECK_PICTURE:
                 if (resultCode == RESULT_OK) {
                     ArrayList<String> path = data.getStringArrayListExtra("pictureList");
-                    adpt_publishPicture.insertPicture(path);
-                    gv.setAdapter(adpt_publishPicture);
-                    UtilBox.setGridViewHeightBasedOnChildren(gv, false);
+                    mPublishPictureAdapter.insertPicture(path);
+                    mGridView.setAdapter(mPublishPictureAdapter);
+                    UtilBox.setGridViewHeightBasedOnChildren(mGridView, false);
                 }
         }
     }

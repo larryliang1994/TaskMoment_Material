@@ -1,5 +1,6 @@
 package com.jiubai.taskmoment.ui.activity;
 
+import android.annotation.SuppressLint;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -16,10 +17,10 @@ import butterknife.ButterKnife;
  */
 public class AboutActivity extends BaseActivity {
     @Bind(R.id.toolbar)
-    Toolbar toolbar;
+    Toolbar mToolbar;
 
     @Bind(R.id.tv_version)
-    TextView tv_version;
+    TextView mVersionTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +36,7 @@ public class AboutActivity extends BaseActivity {
     /**
      * 初始化所有view
      */
+    @SuppressLint("SetTextI18n")
     private void initView() {
         initToolbar();
 
@@ -44,16 +46,14 @@ public class AboutActivity extends BaseActivity {
         try {
             // getPackageName()是当前类的包名，0代表是获取版本信息
             PackageInfo packInfo = packageManager.getPackageInfo(getPackageName(), 0);
-            tv_version.setText(packInfo.versionName + "-beta");
+            mVersionTextView.setText(packInfo.versionName + "-beta");
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
     }
 
     private void initToolbar() {
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationOnClickListener(v -> {
-            finish();
-        });
+        setSupportActionBar(mToolbar);
+        mToolbar.setNavigationOnClickListener(v -> finish());
     }
 }

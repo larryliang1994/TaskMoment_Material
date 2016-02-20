@@ -24,16 +24,16 @@ import butterknife.OnClick;
  */
 public class CompanyInfoActivity extends BaseActivity {
     @Bind(R.id.tv_companyName)
-    TextView tv_companyName;
+    TextView mCompanyNameTextView;
 
     @Bind(R.id.tv_companyCreator)
-    TextView tv_companyCreator;
+    TextView mCompanyCreatorTextView;
 
     @Bind(R.id.iv_companyInfo_qr)
-    ImageView iv_qr;
+    ImageView mCompanyQRImageView;
 
     @Bind(R.id.toolbar)
-    Toolbar toolbar;
+    Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,12 +52,13 @@ public class CompanyInfoActivity extends BaseActivity {
     private void initView() {
         initToolbar();
 
-        tv_companyName.setText(Config.COMPANY_NAME);
+        mCompanyNameTextView.setText(Config.COMPANY_NAME);
 
         MemberListAdapter.getMemberList(this, new MemberListAdapter.GetMemberCallBack() {
             @Override
             public void successCallback() {
-                tv_companyCreator.setText(MemberListAdapter.getMemberWithID(Config.COMPANY_CREATOR).getName());
+                mCompanyCreatorTextView.setText(
+                        MemberListAdapter.getMemberWithID(Config.COMPANY_CREATOR).getName());
             }
 
             @Override
@@ -75,12 +76,14 @@ public class CompanyInfoActivity extends BaseActivity {
             e.printStackTrace();
         }
 
-        iv_qr.setImageBitmap(UtilBox.getQRImage(object.toString(), UtilBox.dip2px(this, 200), UtilBox.dip2px(this, 200)));
+        mCompanyQRImageView.setImageBitmap(
+                UtilBox.getQRImage(object.toString(),
+                        UtilBox.dip2px(this, 200), UtilBox.dip2px(this, 200)));
     }
 
     private void initToolbar() {
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationOnClickListener(v -> {
+        setSupportActionBar(mToolbar);
+        mToolbar.setNavigationOnClickListener(v -> {
             finish();
         });
     }

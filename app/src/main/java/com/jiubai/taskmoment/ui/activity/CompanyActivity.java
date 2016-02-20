@@ -55,20 +55,20 @@ import me.drakeet.materialdialog.MaterialDialog;
 public class CompanyActivity extends BaseActivity {
 
     @Bind(R.id.toolbar)
-    Toolbar toolbar;
+    Toolbar mToolbar;
 
     @Bind(R.id.tabs)
-    TabLayout tabLayout;
+    TabLayout mTabLayout;
 
     @Bind(R.id.viewPager)
-    ViewPager viewPager;
+    ViewPager mViewPager;
 
     @Bind(R.id.floating_actions)
-    FloatingActionsMenu floating_actions;
+    FloatingActionsMenu mFloatingActionsMenu;
 
-    private static ProgressDialog progressDialog;
+    private static ProgressDialog sProgressDialog;
     private SectionsPagerAdapter adapter;
-    private static boolean isLogin = false;
+    private static boolean sIsLogin = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,22 +87,21 @@ public class CompanyActivity extends BaseActivity {
     private void initView() {
         initToolbar();
 
-        isLogin = getIntent().getBooleanExtra("isLogin", false);
+        sIsLogin = getIntent().getBooleanExtra("isLogin", false);
 
         adapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        viewPager.setAdapter(adapter);
+        mViewPager.setAdapter(adapter);
+        mTabLayout.setupWithViewPager(mViewPager);
 
-        tabLayout.setupWithViewPager(viewPager);
-
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("正在获取数据...");
+        sProgressDialog = new ProgressDialog(this);
+        sProgressDialog.setMessage("正在获取数据...");
     }
 
     private void initToolbar() {
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbar);
         if(getIntent().getBooleanExtra("show", false)){
-            toolbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.back));
-            toolbar.setNavigationOnClickListener(v -> {
+            mToolbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.back));
+            mToolbar.setNavigationOnClickListener(v -> {
                 setResult(RESULT_CANCELED);
                 finish();
             });
@@ -174,12 +173,12 @@ public class CompanyActivity extends BaseActivity {
         switch (view.getId()) {
             case R.id.fab_qr:
                 startActivityForResult(new Intent(this, CaptureActivity.class), Constants.CODE_QR_JOIN_COMPANY);
-                floating_actions.collapse();
+                mFloatingActionsMenu.collapse();
                 break;
 
             case R.id.fab_create_company:
                 showCreateCompanyDialog();
-                floating_actions.collapse();
+                mFloatingActionsMenu.collapse();
                 break;
         }
     }
@@ -349,7 +348,7 @@ public class CompanyActivity extends BaseActivity {
         @Override
         public void onGetMyCompanyResult(String result, String info) {
             if (Constants.SUCCESS.equals(result)) { // 获取成功
-                rv_myCompany.setAdapter(new CompanyAdapter(getActivity(), info, isLogin));
+                rv_myCompany.setAdapter(new CompanyAdapter(getActivity(), info, sIsLogin));
                 rv_myCompany.setLayoutManager(new LinearLayoutManager(getActivity()));
                 rv_myCompany.setItemAnimator(new DefaultItemAnimator());
             } else if (Constants.EXPIRE.equals(result)) { // 登录信息过期
@@ -364,7 +363,7 @@ public class CompanyActivity extends BaseActivity {
         @Override
         public void onGetJoinedCompanyResult(String result, String info) {
             if (Constants.SUCCESS.equals(result)) {
-                rv_joinedCompany.setAdapter(new CompanyAdapter(getActivity(), info, isLogin));
+                rv_joinedCompany.setAdapter(new CompanyAdapter(getActivity(), info, sIsLogin));
                 rv_joinedCompany.setLayoutManager(new LinearLayoutManager(getActivity()));
                 rv_joinedCompany.setItemAnimator(new DefaultItemAnimator());
             } else if (Constants.FAILED.equals(result)) {
@@ -375,9 +374,9 @@ public class CompanyActivity extends BaseActivity {
         @Override
         public void onSetSwipeRefreshVisibility(int visibility) {
             if (visibility == Constants.VISIBLE) {
-                progressDialog.show();
+                sProgressDialog.show();
             } else if (visibility == Constants.INVISIBLE) {
-                progressDialog.dismiss();
+                sProgressDialog.dismiss();
             }
         }
     }

@@ -40,15 +40,15 @@ import me.drakeet.materialdialog.MaterialDialog;
  */
 public class MemberFragment extends Fragment {
     @Bind(R.id.listView)
-    ListView listView;
+    ListView mListView;
 
     @Bind(R.id.swipeRefreshLayout)
-    SwipeRefreshLayout swipeRefreshLayout;
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Bind(R.id.fab)
-    FloatingActionButton floatingActionButton;
+    FloatingActionButton mFloatingActionButton;
 
-    private MemberListAdapter adapter;
+    private MemberListAdapter mAdapter;
 
     @Nullable
     @Override
@@ -66,10 +66,10 @@ public class MemberFragment extends Fragment {
      * 初始化界面
      */
     private void initView() {
-        swipeRefreshLayout.setOnRefreshListener(this::refreshListView);
-        swipeRefreshLayout.setEnabled(true);
+        mSwipeRefreshLayout.setOnRefreshListener(this::refreshListView);
+        mSwipeRefreshLayout.setEnabled(true);
 
-        floatingActionButton.attachToListView(listView);
+        mFloatingActionButton.attachToListView(mListView);
 
         // 延迟执行才能使旋转进度条显示出来
         new Handler().postDelayed(this::refreshListView, 100);
@@ -84,12 +84,12 @@ public class MemberFragment extends Fragment {
             return;
         }
 
-        swipeRefreshLayout.setRefreshing(true);
+        mSwipeRefreshLayout.setRefreshing(true);
 
         VolleyUtil.requestWithCookie(Urls.GET_MEMBER + Config.CID, null, null,
                 this::showMember,
                 volleyError -> {
-                    swipeRefreshLayout.setRefreshing(false);
+                    mSwipeRefreshLayout.setRefreshing(false);
                     UtilBox.showSnackbar(getActivity(), "获取成员列表失败，请重试");
                 });
     }
@@ -177,8 +177,8 @@ public class MemberFragment extends Fragment {
                 MemberListAdapter.memberList.add(new Member(json.getString("real_name"),
                         json.getString("mobile"), json.getString("id"), json.getString("mid")));
 
-                adapter.notifyDataSetChanged();
-                UtilBox.setListViewHeightBasedOnChildren(listView);
+                mAdapter.notifyDataSetChanged();
+                UtilBox.setListViewHeightBasedOnChildren(mListView);
             }
 
             return json.getString("info");
@@ -203,15 +203,15 @@ public class MemberFragment extends Fragment {
 
             if (Constants.SUCCESS.equals(responseStatus)) {
 
-                adapter = new MemberListAdapter(getActivity(), response, listView);
+                mAdapter = new MemberListAdapter(getActivity(), response, mListView);
 
-                if (listView.getAdapter() == null) {
-                    listView.setAdapter(new MemberListAdapter(getActivity(), response, listView));
+                if (mListView.getAdapter() == null) {
+                    mListView.setAdapter(new MemberListAdapter(getActivity(), response, mListView));
                 } else {
-                    adapter.notifyDataSetChanged();
+                    mAdapter.notifyDataSetChanged();
                 }
 
-                UtilBox.setListViewHeightBasedOnChildren(listView);
+                UtilBox.setListViewHeightBasedOnChildren(mListView);
             } else {
                 UtilBox.showSnackbar(getActivity(), "数据有误，请重试");
             }
@@ -219,7 +219,7 @@ public class MemberFragment extends Fragment {
             e.printStackTrace();
         }
 
-        new Handler().postDelayed(() -> swipeRefreshLayout.setRefreshing(false), 1000);
+        new Handler().postDelayed(() -> mSwipeRefreshLayout.setRefreshing(false), 1000);
     }
 
     @Override
@@ -232,7 +232,7 @@ public class MemberFragment extends Fragment {
                     VolleyUtil.requestWithCookie(Urls.GET_MEMBER + Config.CID, null, null,
                             this::showMember,
                             volleyError -> {
-                                swipeRefreshLayout.setRefreshing(false);
+                                mSwipeRefreshLayout.setRefreshing(false);
                                 UtilBox.showSnackbar(getActivity(), "获取成员列表失败，请重试");
                             });
                 }

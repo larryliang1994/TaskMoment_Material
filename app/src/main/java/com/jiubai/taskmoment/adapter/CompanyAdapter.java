@@ -33,18 +33,18 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class CompanyAdapter extends RecyclerView.Adapter<CompanyAdapter.ViewHolder> {
-    private List<Company> companyList;
-    private Context context;
+    private List<Company> mCompanyList;
+    private Context mContext;
     private boolean isLogin = false;
 
     public CompanyAdapter(Context context, String companyInfo, boolean isLogin) {
         try {
-            this.context = context;
+            this.mContext = context;
 
             this.isLogin = isLogin;
 
-            companyList = new ArrayList<>();
-            companyList.clear();
+            mCompanyList = new ArrayList<>();
+            mCompanyList.clear();
 
             JSONObject companyJson = new JSONObject(companyInfo);
 
@@ -53,7 +53,7 @@ public class CompanyAdapter extends RecyclerView.Adapter<CompanyAdapter.ViewHold
 
                 for (int i = 0; i < companyArray.length(); i++) {
                     JSONObject obj = new JSONObject(companyArray.getString(i));
-                    companyList.add(new Company(obj.getString("name"),
+                    mCompanyList.add(new Company(obj.getString("name"),
                             obj.getString("cid"), obj.getString("mid")));
                 }
             }
@@ -65,32 +65,33 @@ public class CompanyAdapter extends RecyclerView.Adapter<CompanyAdapter.ViewHold
 
     @Override
     public CompanyAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.item_company, parent, false));
+        return new ViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_company, parent, false));
     }
 
     @Override
     public void onBindViewHolder(CompanyAdapter.ViewHolder holder, int position) {
-        Company company = companyList.get(position);
+        Company company = mCompanyList.get(position);
 
-        holder.textView.setText(company.getName());
+        holder.companyNameTextView.setText(company.getName());
 
-        holder.imageView.setImageBitmap(UtilBox.readBitMap(context, Constants.COMPANY_BACKGROUND[position % 3]));
+        holder.companyBackgroundImageView.setImageBitmap(
+                UtilBox.readBitMap(mContext, Constants.COMPANY_BACKGROUND[position % 3]));
         ImageLoader.getInstance().displayImage(
                 UtilBox.getThumbnailImageName(Urls.MEDIA_CENTER_BACKGROUND + company.getCid() + ".jpg",
-                        UtilBox.getWidthPixels(context),
-                        UtilBox.dip2px(context, 180))
-                        + "?t=" + Config.TIME, holder.imageView);
+                        UtilBox.getWidthPixels(mContext),
+                        UtilBox.dip2px(mContext, 180))
+                        + "?t=" + Config.TIME, holder.companyBackgroundImageView);
 
-        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) holder.imageView.getLayoutParams();
-        params.width = UtilBox.getWidthPixels(context);
-        holder.imageView.setLayoutParams(params);
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) holder.companyBackgroundImageView.getLayoutParams();
+        params.width = UtilBox.getWidthPixels(mContext);
+        holder.companyBackgroundImageView.setLayoutParams(params);
 
-        holder.imageView.setOnClickListener(v -> {
-            Config.COMPANY_NAME = companyList.get(position).getName();
-            Config.CID = companyList.get(position).getCid();
+        holder.companyBackgroundImageView.setOnClickListener(v -> {
+            Config.COMPANY_NAME = mCompanyList.get(position).getName();
+            Config.CID = mCompanyList.get(position).getCid();
             Config.COMPANY_BACKGROUND
                     = Urls.MEDIA_CENTER_BACKGROUND + Config.CID + ".jpg";
-            Config.COMPANY_CREATOR = companyList.get(position).getCreator();
+            Config.COMPANY_CREATOR = mCompanyList.get(position).getCreator();
             MemberListAdapter.memberList = null;
 
             // 保存公司信息
@@ -102,22 +103,22 @@ public class CompanyAdapter extends RecyclerView.Adapter<CompanyAdapter.ViewHold
             editor.apply();
 
             if (isLogin) {
-                Intent intent = new Intent(context, MainActivity.class);
-                context.startActivity(intent);
+                Intent intent = new Intent(mContext, MainActivity.class);
+                mContext.startActivity(intent);
             }
-            ((Activity) context).setResult(Activity.RESULT_OK);
-            ((Activity) context).finish();
+            ((Activity) mContext).setResult(Activity.RESULT_OK);
+            ((Activity) mContext).finish();
         });
     }
 
     @Override
     public int getItemCount() {
-        return companyList.size();
+        return mCompanyList.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        @Bind(R.id.tv_companyName) TextView textView;
-        @Bind(R.id.iv_companyBackground) ImageView imageView;
+        @Bind(R.id.tv_companyName) TextView companyNameTextView;
+        @Bind(R.id.iv_companyBackground) ImageView companyBackgroundImageView;
 
         public ViewHolder(View itemView) {
             super(itemView);

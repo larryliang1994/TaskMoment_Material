@@ -18,15 +18,15 @@ import org.json.JSONObject;
  * CompanyPresenter实现类
  */
 public class CompanyPresenterImpl implements ICompanyPresenter {
-    private ICompanyView iCompanyView;
+    private ICompanyView mICompanyView;
 
     public CompanyPresenterImpl(ICompanyView iCompanyView) {
-        this.iCompanyView = iCompanyView;
+        this.mICompanyView = iCompanyView;
     }
 
     @Override
     public void getMyCompany() {
-        iCompanyView.onSetSwipeRefreshVisibility(Constants.VISIBLE);
+        mICompanyView.onSetSwipeRefreshVisibility(Constants.VISIBLE);
 
         VolleyUtil.requestWithCookie(Urls.MY_COMPANY, null, null,
                 response -> {
@@ -34,7 +34,7 @@ public class CompanyPresenterImpl implements ICompanyPresenter {
                     try {
                         JSONObject responseJson = new JSONObject(response);
                         if (Constants.SUCCESS.equals(responseJson.getString("status"))) {
-                            iCompanyView.onGetMyCompanyResult(Constants.SUCCESS, response);
+                            mICompanyView.onGetMyCompanyResult(Constants.SUCCESS, response);
                         } else {
                             // cookie有误，清空cookie
                             SharedPreferences.Editor editor = App.sp.edit();
@@ -43,10 +43,10 @@ public class CompanyPresenterImpl implements ICompanyPresenter {
 
                             Config.COOKIE = null;
 
-                            iCompanyView.onGetMyCompanyResult(Constants.EXPIRE,
+                            mICompanyView.onGetMyCompanyResult(Constants.EXPIRE,
                                     "登录信息已过期，请重新登录");
 
-                            new Handler().postDelayed(() -> iCompanyView.onSetSwipeRefreshVisibility(Constants.INVISIBLE), 1000);
+                            new Handler().postDelayed(() -> mICompanyView.onSetSwipeRefreshVisibility(Constants.INVISIBLE), 1000);
                         }
 
                     } catch (JSONException e) {
@@ -54,10 +54,10 @@ public class CompanyPresenterImpl implements ICompanyPresenter {
                     }
                 },
                 volleyError -> {
-                    new Handler().postDelayed(() -> iCompanyView.onSetSwipeRefreshVisibility(Constants.INVISIBLE), 1000);
+                    new Handler().postDelayed(() -> mICompanyView.onSetSwipeRefreshVisibility(Constants.INVISIBLE), 1000);
 
-                    iCompanyView.onGetMyCompanyResult(Constants.FAILED,
-                            "获取公司列表失败，下拉重试一下吧？");
+                    mICompanyView.onGetMyCompanyResult(Constants.FAILED,
+                            "获取公司列表失败，刷新一下吧？");
                 });
     }
 
@@ -68,24 +68,24 @@ public class CompanyPresenterImpl implements ICompanyPresenter {
                     try {
                         JSONObject responseJson = new JSONObject(response);
                         if (Constants.SUCCESS.equals(responseJson.getString("status"))) {
-                            iCompanyView.onGetJoinedCompanyResult(Constants.SUCCESS, response);
+                            mICompanyView.onGetJoinedCompanyResult(Constants.SUCCESS, response);
 
-                            new Handler().postDelayed(() -> iCompanyView.onSetSwipeRefreshVisibility(Constants.INVISIBLE), 1000);
+                            new Handler().postDelayed(() -> mICompanyView.onSetSwipeRefreshVisibility(Constants.INVISIBLE), 1000);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 },
                 volleyError -> {
-                    new Handler().postDelayed(() -> iCompanyView.onSetSwipeRefreshVisibility(Constants.INVISIBLE), 1000);
+                    new Handler().postDelayed(() -> mICompanyView.onSetSwipeRefreshVisibility(Constants.INVISIBLE), 1000);
 
-                    iCompanyView.onGetJoinedCompanyResult(Constants.FAILED,
-                            "获取公司列表失败，下拉重试一下吧？");
+                    mICompanyView.onGetJoinedCompanyResult(Constants.FAILED,
+                            "获取公司列表失败，刷新一下吧？");
                 });
     }
 
     @Override
     public void onSetSwipeRefreshVisibility(int visibility) {
-        iCompanyView.onSetSwipeRefreshVisibility(visibility);
+        mICompanyView.onSetSwipeRefreshVisibility(visibility);
     }
 }

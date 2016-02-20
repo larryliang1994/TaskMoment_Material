@@ -42,11 +42,11 @@ import me.drakeet.materialdialog.MaterialDialog;
 @SuppressLint("InflateParams")
 public class PersonalInfoAdapter extends BaseAdapter implements IChangeNicknameView {
     private ArrayList<String> itemList;
-    private Context context;
+    private Context mContext;
     private String mid;
     private String nickname;
-    private MaterialDialog dialog;
-    private TextView tv_nickname, tv_input;
+    private MaterialDialog mDialog;
+    private TextView mNicknameTextView, mErrorTextView;
 
     public PersonalInfoAdapter(Context context, String mid, String nickname) {
         if (itemList == null) {
@@ -67,7 +67,7 @@ public class PersonalInfoAdapter extends BaseAdapter implements IChangeNicknameV
             itemList.add("ta审核的任务");
         }
 
-        this.context = context;
+        this.mContext = context;
         this.mid = mid;
         this.nickname = nickname;
     }
@@ -91,13 +91,13 @@ public class PersonalInfoAdapter extends BaseAdapter implements IChangeNicknameV
     public View getView(final int position, View convertView, ViewGroup parent) {
 
         if (position == 0) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_userinfo_head, null);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_userinfo_head, null);
 
-            tv_nickname = ((TextView) convertView.findViewById(R.id.tv_nickname));
-            tv_nickname.setText(nickname);
+            mNicknameTextView = ((TextView) convertView.findViewById(R.id.tv_nickname));
+            mNicknameTextView.setText(nickname);
 
             if(mid.equals(Config.MID)){
-                tv_nickname.setOnClickListener(v -> showNicknameDialog(nickname));
+                mNicknameTextView.setOnClickListener(v -> showNicknameDialog(nickname));
             }
 
             final ImageView iv_portrait = (ImageView) convertView.findViewById(R.id.iv_portrait);
@@ -109,15 +109,15 @@ public class PersonalInfoAdapter extends BaseAdapter implements IChangeNicknameV
                     ArrayList<String> picture = new ArrayList<>();
                     picture.add(Urls.MEDIA_CENTER_PORTRAIT + mid + ".jpg");
 
-                    Intent intent = new Intent(context, CheckPictureActivity.class);
+                    Intent intent = new Intent(mContext, CheckPictureActivity.class);
                     intent.putExtra("pictureList", picture);
                     intent.putExtra("fromWhere", "net");
 
-                    context.startActivity(intent);
+                    mContext.startActivity(intent);
                 } else {
                     String[] items = {"更换头像"};
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                     builder.setItems(items, (dialog1, which) -> {
                         Intent intent = new Intent(Intent.ACTION_GET_CONTENT, null);
 
@@ -137,7 +137,7 @@ public class PersonalInfoAdapter extends BaseAdapter implements IChangeNicknameV
                         intent.putExtra("outputX", 255);
                         intent.putExtra("outputY", 255);
 
-                        ((Activity) context).startActivityForResult(
+                        ((Activity) mContext).startActivityForResult(
                                 intent, Constants.CODE_CHOOSE_PORTRAIT);
                     })
                             .setCancelable(true);
@@ -148,13 +148,13 @@ public class PersonalInfoAdapter extends BaseAdapter implements IChangeNicknameV
                 }
             });
         } else {
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_body, null);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_body, null);
             ((TextView) convertView.findViewById(R.id.tv_item_body))
                     .setText(itemList.get(position));
 
             ((RippleView) convertView.findViewById(R.id.rv_item_body)).setOnRippleCompleteListener(
                     rippleView -> {
-                        Intent intent = new Intent(context, PersonalTimelineActivity.class);
+                        Intent intent = new Intent(mContext, PersonalTimelineActivity.class);
                         if (position == 3) {
                             // ta审核的任务
                             intent.putExtra("isAudit", true);
@@ -163,7 +163,7 @@ public class PersonalInfoAdapter extends BaseAdapter implements IChangeNicknameV
                             intent.putExtra("isInvolved", true);
                         }
                         intent.putExtra("mid", mid);
-                        context.startActivity(intent);
+                        mContext.startActivity(intent);
                     });
 
             // 去掉最后一条分割线
@@ -177,11 +177,11 @@ public class PersonalInfoAdapter extends BaseAdapter implements IChangeNicknameV
 
 
     private void showNicknameDialog(final String nickname) {
-        final View contentView = ((Activity) context).getLayoutInflater()
+        final View contentView = ((Activity) mContext).getLayoutInflater()
                 .inflate(R.layout.dialog_input, null);
 
         TextInputLayout til = (TextInputLayout) contentView.findViewById(R.id.til_input);
-        til.setHint(context.getResources().getString(R.string.nickname));
+        til.setHint(mContext.getResources().getString(R.string.nickname));
 
         final EditText et_nickname = ((EditText) contentView
                 .findViewById(R.id.edt_input));
@@ -189,38 +189,38 @@ public class PersonalInfoAdapter extends BaseAdapter implements IChangeNicknameV
         et_nickname.setInputType(EditorInfo.TYPE_CLASS_TEXT);
         et_nickname.requestFocus();
 
-        dialog = new MaterialDialog(context);
-        dialog.setPositiveButton("完成", v -> {
+        mDialog = new MaterialDialog(mContext);
+        mDialog.setPositiveButton("完成", v -> {
             new Handler().post(() -> {
                 if (!Config.IS_CONNECTED) {
-                    Toast.makeText(context, R.string.cant_access_network,
+                    Toast.makeText(mContext, R.string.cant_access_network,
                             Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 final String newNickname = et_nickname.getText().toString();
-                tv_input = (TextView) contentView.findViewById(R.id.tv_input);
+                mErrorTextView = (TextView) contentView.findViewById(R.id.tv_input);
 
                 if (newNickname.isEmpty() || newNickname.length() == 0) {
-                    tv_input.setVisibility(View.VISIBLE);
-                    tv_input.setText("昵称不能为空");
+                    mErrorTextView.setVisibility(View.VISIBLE);
+                    mErrorTextView.setText("昵称不能为空");
                 } else if (newNickname.getBytes().length > 24) {
-                    tv_input.setVisibility(View.VISIBLE);
-                    tv_input.setText("昵称过长");
+                    mErrorTextView.setVisibility(View.VISIBLE);
+                    mErrorTextView.setText("昵称过长");
                 } else if (newNickname.equals(nickname)) {
-                    dialog.dismiss();
+                    mDialog.dismiss();
                 } else {
                     IChangeNicknamePresenter changeNicknamePresenter
-                            = new ChangeNicknamePresenterImpl(context, PersonalInfoAdapter.this);
+                            = new ChangeNicknamePresenterImpl(mContext, PersonalInfoAdapter.this);
                     changeNicknamePresenter.doChangeNickname(newNickname);
                 }
             });
         });
-        dialog.setNegativeButton("取消", v -> {
-            dialog.dismiss();
+        mDialog.setNegativeButton("取消", v -> {
+            mDialog.dismiss();
         });
 
-        dialog.setContentView(contentView)
+        mDialog.setContentView(contentView)
                 .setCanceledOnTouchOutside(true)
                 .show();
     }
@@ -228,11 +228,11 @@ public class PersonalInfoAdapter extends BaseAdapter implements IChangeNicknameV
     @Override
     public void onChangeNicknameResult(String result, String info) {
         if(Constants.SUCCESS.equals(result)){
-            dialog.dismiss();
-            tv_nickname.setText(Config.NICKNAME);
+            mDialog.dismiss();
+            mNicknameTextView.setText(Config.NICKNAME);
         } else {
-            tv_input.setVisibility(View.VISIBLE);
-            tv_input.setText(info);
+            mErrorTextView.setVisibility(View.VISIBLE);
+            mErrorTextView.setText(info);
         }
     }
 }

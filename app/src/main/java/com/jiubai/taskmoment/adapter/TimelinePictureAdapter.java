@@ -18,15 +18,18 @@ import com.nostra13.universalimageloader.core.download.ImageDownloader;
 
 import java.util.ArrayList;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 /**
  * Timeline中的Picture的适配器
  */
 public class TimelinePictureAdapter extends BaseAdapter {
-    public ArrayList<String> pictureList;
-    private Context context;
+    private ArrayList<String> pictureList;
+    private Context mContext;
 
     public TimelinePictureAdapter(Context context, ArrayList<String> pictureList) {
-        this.context = context;
+        this.mContext = context;
         this.pictureList = pictureList;
     }
 
@@ -50,7 +53,7 @@ public class TimelinePictureAdapter extends BaseAdapter {
     public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_picture, null);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_picture, null);
 
             holder = new ViewHolder(convertView);
 
@@ -59,7 +62,7 @@ public class TimelinePictureAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        int pictureSize = ((UtilBox.getWidthPixels(context)) - UtilBox.dip2px(context, 93)) / 3;
+        int pictureSize = ((UtilBox.getWidthPixels(mContext)) - UtilBox.dip2px(mContext, 93)) / 3;
 
         // 适配图片大小
         ViewGroup.LayoutParams params = holder.iv_picture.getLayoutParams();
@@ -68,15 +71,15 @@ public class TimelinePictureAdapter extends BaseAdapter {
         holder.iv_picture.setLayoutParams(params);
 
         holder.iv_picture.setOnClickListener(v -> {
-            Intent intent = new Intent(context, CheckPictureActivity.class);
+            Intent intent = new Intent(mContext, CheckPictureActivity.class);
 
             intent.putStringArrayListExtra("pictureList", pictureList);
             intent.putExtra("index", position);
             intent.putExtra("fromWhere", "net");
 
-            context.startActivity(intent);
+            mContext.startActivity(intent);
 
-            ((Activity) context).overridePendingTransition(
+            ((Activity) mContext).overridePendingTransition(
                     R.anim.zoom_in_quick, R.anim.scale_stay);
         });
 
@@ -92,11 +95,11 @@ public class TimelinePictureAdapter extends BaseAdapter {
         return convertView;
     }
 
-    private class ViewHolder {
-        ImageView iv_picture;
+    public class ViewHolder {
+        @Bind(R.id.iv_picture)ImageView iv_picture;
 
         public ViewHolder(View view) {
-            iv_picture = (ImageView) view.findViewById(R.id.iv_picture);
+            ButterKnife.bind(this, view);
         }
     }
 }

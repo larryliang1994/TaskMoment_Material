@@ -17,19 +17,19 @@ import org.json.JSONObject;
  */
 public class GetVerifyCodePresenterImpl implements IGetVerifyCodePresenter {
 
-    private IGetVerifyCodeView iGetVerifyCodeView;
+    private IGetVerifyCodeView mIGetVerifyCodeView;
 
     public GetVerifyCodePresenterImpl(IGetVerifyCodeView iGetVerifyCodeView) {
-        this.iGetVerifyCodeView = iGetVerifyCodeView;
+        this.mIGetVerifyCodeView = iGetVerifyCodeView;
     }
 
     @Override
     public void doGetVerifyCode(final String phoneNum) {
         new Handler().post(() -> {
 
-            iGetVerifyCodeView.onUpdateView();
+            mIGetVerifyCodeView.onUpdateView();
 
-            iGetVerifyCodeView.onSetRotateLoadingVisibility(Constants.VISIBLE);
+            mIGetVerifyCodeView.onSetRotateLoadingVisibility(Constants.VISIBLE);
 
             if (Config.RANDOM == null) {
                 UtilBox.getRandom();
@@ -41,19 +41,19 @@ public class GetVerifyCodePresenterImpl implements IGetVerifyCodePresenter {
             String[] httpValue = {phoneNum};
             VolleyUtil.requestWithSoap(soapKey, soapValue, httpKey, httpValue,
                     response -> {
-                        iGetVerifyCodeView.onSetRotateLoadingVisibility(Constants.INVISIBLE);
+                        mIGetVerifyCodeView.onSetRotateLoadingVisibility(Constants.INVISIBLE);
 
                         try {
                             JSONObject obj = new JSONObject(response);
-                            iGetVerifyCodeView.onGetVerifyCodeResult(true, obj.getString("info"));
+                            mIGetVerifyCodeView.onGetVerifyCodeResult(true, obj.getString("info"));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     },
                     volleyError -> {
-                        iGetVerifyCodeView.onSetRotateLoadingVisibility(Constants.INVISIBLE);
+                        mIGetVerifyCodeView.onSetRotateLoadingVisibility(Constants.INVISIBLE);
 
-                        iGetVerifyCodeView.onGetVerifyCodeResult(false, "");
+                        mIGetVerifyCodeView.onGetVerifyCodeResult(false, "");
 
                         if (volleyError != null
                                 && volleyError.getMessage() != null) {

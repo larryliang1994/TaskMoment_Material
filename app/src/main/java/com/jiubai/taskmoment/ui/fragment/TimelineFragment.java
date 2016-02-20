@@ -67,25 +67,25 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
         ICommentView, ITaskView, IAuditView {
 
     @Bind(R.id.recyclerView)
-    RecyclerView recyclerView;
+    RecyclerView mRecyclerView;
 
     @Bind(R.id.swipeRefreshLayout)
-    SwipeRefreshLayout swipeRefreshLayout;
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
-    private static AppBarLayout appBarLayout;
-    private static TimelineListAdapter adapter;
-    private static ICommentPresenter commentPresenter;
-    private static IAuditPresenter auditPresenter;
+    private static AppBarLayout sAppBarLayout;
+    private static TimelineListAdapter sAdapter;
+    private static ICommentPresenter sCommentPresenter;
+    private static IAuditPresenter sAuditPresenter;
 
-    public static LinearLayout ll_comment;
-    public static LinearLayout ll_audit;
+    public static LinearLayout sCommentLinearLayout;
+    public static LinearLayout sAuditLinearLayout;
     public static ArrayList<String> pictureList; // 供任务附图上传中时使用
     public static String taskID;
     public static boolean commentWindowIsShow = false, auditWindowIsShow = false;
 
-    private ITaskPresenter taskPresenter;
-    private ITimelinePresenter timelinePresenter;
-    private IUploadImagePresenter uploadImagePresenter;
+    private ITaskPresenter mTaskPresenter;
+    private ITimelinePresenter mTimelinePresenter;
+    private IUploadImagePresenter mUploadImagePresenter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -105,31 +105,31 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
     @SuppressLint("InflateParams")
     private void initView(View view) {
 
-        swipeRefreshLayout.setOnRefreshListener(() -> refreshTimeline("refresh",
+        mSwipeRefreshLayout.setOnRefreshListener(() -> refreshTimeline("refresh",
                 Calendar.getInstance(Locale.CHINA).getTimeInMillis() + ""));
-        swipeRefreshLayout.setEnabled(true);
+        mSwipeRefreshLayout.setEnabled(true);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), null));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), null));
 
-        appBarLayout = (AppBarLayout) getActivity().findViewById(R.id.appbar);
-        appBarLayout.addOnOffsetChangedListener((appBarLayout1, verticalOffset) -> {
+        sAppBarLayout = (AppBarLayout) getActivity().findViewById(R.id.appbar);
+        sAppBarLayout.addOnOffsetChangedListener((appBarLayout1, verticalOffset) -> {
             if (verticalOffset == 0) {
-                swipeRefreshLayout.setEnabled(true);
+                mSwipeRefreshLayout.setEnabled(true);
             } else {
-                swipeRefreshLayout.setEnabled(false);
+                mSwipeRefreshLayout.setEnabled(false);
             }
         });
 
         TextView tv_space_comment = (TextView) view.findViewById(R.id.tv_space_comment);
         tv_space_comment.setOnTouchListener((v, event) -> {
             if (commentWindowIsShow) {
-                ll_comment.setVisibility(View.GONE);
+                sCommentLinearLayout.setVisibility(View.GONE);
                 commentWindowIsShow = false;
 
                 // 关闭键盘
-                UtilBox.toggleSoftInput(ll_comment, false);
+                UtilBox.toggleSoftInput(sCommentLinearLayout, false);
             }
             return false;
         });
@@ -137,25 +137,25 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
         TextView tv_space_audit = (TextView) view.findViewById(R.id.tv_space_audit);
         tv_space_audit.setOnTouchListener((v, event) -> {
             if (auditWindowIsShow) {
-                ll_audit.setVisibility(View.GONE);
+                sAuditLinearLayout.setVisibility(View.GONE);
 
                 auditWindowIsShow = false;
             }
             return false;
         });
 
-        ll_comment = (LinearLayout) view.findViewById(R.id.ll_comment);
-        ll_audit = (LinearLayout) view.findViewById(R.id.ll_audit);
+        sCommentLinearLayout = (LinearLayout) view.findViewById(R.id.ll_comment);
+        sAuditLinearLayout = (LinearLayout) view.findViewById(R.id.ll_audit);
 
-        timelinePresenter = new TimelinePresenterImpl(this);
-        commentPresenter = new CommentPresenterImpl(getActivity(), this);
-        uploadImagePresenter = new UploadImagePresenterImpl(getActivity(), this);
-        auditPresenter = new AuditPresenterImpl(getActivity(), this);
-        taskPresenter = new TaskPresenterImpl(this);
+        mTimelinePresenter = new TimelinePresenterImpl(this);
+        sCommentPresenter = new CommentPresenterImpl(getActivity(), this);
+        mUploadImagePresenter = new UploadImagePresenterImpl(getActivity(), this);
+        sAuditPresenter = new AuditPresenterImpl(getActivity(), this);
+        mTaskPresenter = new TaskPresenterImpl(this);
 
         // 延迟执行才能使旋转进度条显示出来
         new Handler().postDelayed(() -> {
-            timelinePresenter.onSetSwipeRefreshVisibility(Constants.VISIBLE);
+            mTimelinePresenter.onSetSwipeRefreshVisibility(Constants.VISIBLE);
             refreshTimeline("refresh",
                     Calendar.getInstance(Locale.CHINA).getTimeInMillis() / 1000 + "");
         }, 200);
@@ -182,7 +182,7 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
 
                 if (position != -1) {
                     TimelineListAdapter.taskList.remove(position);
-                    adapter.notifyDataSetChanged();
+                    sAdapter.notifyDataSetChanged();
                 }
 
                 break;
@@ -200,7 +200,7 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
 
                         TimelineListAdapter.taskList.get(position).getComments().add(comment);
 
-                        adapter.notifyDataSetChanged();
+                        sAdapter.notifyDataSetChanged();
 
                         break;
                     }
@@ -215,7 +215,7 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
                     TimelineListAdapter.taskList.get(position).setAuditResult(
                             (String) event.getSerializableExtra());
 
-                    adapter.notifyDataSetChanged();
+                    sAdapter.notifyDataSetChanged();
                 }
                 break;
         }
@@ -231,11 +231,11 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
         if (!Config.IS_CONNECTED) {
             UtilBox.showSnackbar(getActivity(), R.string.cant_access_network);
 
-            timelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
+            mTimelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
             return;
         }
 
-        timelinePresenter.doPullTimeline(request_time, type);
+        mTimelinePresenter.doPullTimeline(request_time, type);
     }
 
     /**
@@ -251,13 +251,13 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
         commentWindowIsShow = true;
 
         if (auditWindowIsShow) {
-            ll_audit.setVisibility(View.GONE);
+            sAuditLinearLayout.setVisibility(View.GONE);
 
             auditWindowIsShow = false;
         }
 
-        ll_comment.setVisibility(View.VISIBLE);
-        final EditText edt_content = (EditText) ll_comment.findViewById(R.id.edt_comment_content);
+        sCommentLinearLayout.setVisibility(View.VISIBLE);
+        final EditText edt_content = (EditText) sCommentLinearLayout.findViewById(R.id.edt_comment_content);
         if (!"".equals(receiver)) {
             edt_content.setHint("回复" + receiver + ":");
         } else {
@@ -267,11 +267,11 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
         edt_content.requestFocus();
 
         // 弹出键盘
-        UtilBox.toggleSoftInput(ll_comment, true);
+        UtilBox.toggleSoftInput(sCommentLinearLayout, true);
 
-        appBarLayout.setExpanded(false, false);
+        sAppBarLayout.setExpanded(false, false);
 
-        Button btn_send = (Button) ll_comment.findViewById(R.id.btn_comment_send);
+        Button btn_send = (Button) sCommentLinearLayout.findViewById(R.id.btn_comment_send);
         btn_send.setOnClickListener(v -> {
             if (edt_content.getText().toString().isEmpty()) {
                 Toast.makeText(context,
@@ -285,11 +285,11 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
                 return;
             }
 
-            ll_comment.setVisibility(View.GONE);
+            sCommentLinearLayout.setVisibility(View.GONE);
 
-            UtilBox.toggleSoftInput(ll_comment, false);
+            UtilBox.toggleSoftInput(sCommentLinearLayout, false);
 
-            commentPresenter.doSendComment(taskID, receiver, receiverID, edt_content.getText().toString());
+            sCommentPresenter.doSendComment(taskID, receiver, receiverID, edt_content.getText().toString());
         });
     }
 
@@ -303,16 +303,16 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
         auditWindowIsShow = true;
 
         if (commentWindowIsShow) {
-            ll_comment.setVisibility(View.GONE);
+            sCommentLinearLayout.setVisibility(View.GONE);
             commentWindowIsShow = false;
         }
 
-        ll_audit.setVisibility(View.VISIBLE);
+        sAuditLinearLayout.setVisibility(View.VISIBLE);
 
-        appBarLayout.setExpanded(false, true);
+        sAppBarLayout.setExpanded(false, true);
 
         final int[] audit_result = {3};
-        RadioGroup radioGroup = (RadioGroup) ll_audit.findViewById(R.id.rg_audit);
+        RadioGroup radioGroup = (RadioGroup) sAuditLinearLayout.findViewById(R.id.rg_audit);
         radioGroup.check(R.id.rb_complete);
         radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             switch (checkedId) {
@@ -330,14 +330,14 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
             }
         });
 
-        Button btn_send = (Button) ll_audit.findViewById(R.id.btn_audit_send);
+        Button btn_send = (Button) sAuditLinearLayout.findViewById(R.id.btn_audit_send);
         btn_send.setOnClickListener(v -> {
             if (!Config.IS_CONNECTED) {
                 UtilBox.showSnackbar(context, R.string.cant_access_network);
                 return;
             }
 
-            auditPresenter.doAudit(taskID, audit_result[0] + "");
+            sAuditPresenter.doAudit(taskID, audit_result[0] + "");
         });
     }
 
@@ -365,7 +365,7 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
                     int sendState = Task.SENDING;
                     if (pictureList != null && !pictureList.isEmpty()) {
                         // 开始上传图片
-                        uploadImagePresenter.doUploadImages(pictureList, Constants.DIR_TASK);
+                        mUploadImagePresenter.doUploadImages(pictureList, Constants.DIR_TASK);
                     } else {
                         sendState = Task.SUCCESS;
                     }
@@ -377,8 +377,8 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
                             pictureList, null, deadline, publish_time, create_time,
                             "1", sendState));
 
-                    adapter.notifyItemInserted(0);
-                    recyclerView.smoothScrollToPosition(0);
+                    sAdapter.notifyItemInserted(0);
+                    mRecyclerView.smoothScrollToPosition(0);
                 }
                 break;
         }
@@ -389,14 +389,14 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
         switch (result) {
             case Constants.SUCCESS:
                 if ("refresh".equals(type)) {
-                    adapter = new TimelineListAdapter(getActivity(), true, info, uploadImagePresenter, recyclerView);
-                    recyclerView.setAdapter(adapter);
-                    timelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
+                    sAdapter = new TimelineListAdapter(getActivity(), true, info, mUploadImagePresenter, mRecyclerView);
+                    mRecyclerView.setAdapter(sAdapter);
+                    mTimelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
 
-                    if (adapter.onLoadMoreListener == null) {
-                        adapter.setOnLoadMoreListener(() -> {
+                    if (sAdapter.onLoadMoreListener == null) {
+                        sAdapter.setOnLoadMoreListener(() -> {
                             TimelineListAdapter.taskList.add(null);
-                            adapter.notifyItemInserted(TimelineListAdapter.taskList.size() - 1);
+                            sAdapter.notifyItemInserted(TimelineListAdapter.taskList.size() - 1);
 
                             refreshTimeline("loadMore",
                                     (TimelineListAdapter.taskList
@@ -406,11 +406,11 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
                     }
                 } else {
                     TimelineListAdapter.taskList.remove(TimelineListAdapter.taskList.size() - 1);
-                    adapter.notifyItemRemoved(TimelineListAdapter.taskList.size());
+                    sAdapter.notifyItemRemoved(TimelineListAdapter.taskList.size());
 
-                    adapter = new TimelineListAdapter(getActivity(), false, info, uploadImagePresenter, recyclerView);
-                    adapter.notifyDataSetChanged();
-                    adapter.setLoaded();
+                    sAdapter = new TimelineListAdapter(getActivity(), false, info, mUploadImagePresenter, mRecyclerView);
+                    sAdapter.notifyDataSetChanged();
+                    sAdapter.setLoaded();
                 }
 
                 break;
@@ -419,10 +419,10 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
             case Constants.FAILED:
             default:
                 if ("refresh".equals(type)) {
-                    timelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
+                    mTimelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
                 } else {
                     TimelineListAdapter.taskList.remove(TimelineListAdapter.taskList.size() - 1);
-                    adapter.notifyItemRemoved(TimelineListAdapter.taskList.size());
+                    sAdapter.notifyItemRemoved(TimelineListAdapter.taskList.size());
                 }
 
                 UtilBox.showSnackbar(getActivity(), info);
@@ -437,9 +437,9 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
     @Override
     public void onSetSwipeRefreshVisibility(int visibility) {
         if (Constants.VISIBLE == visibility) {
-            swipeRefreshLayout.setRefreshing(true);
+            mSwipeRefreshLayout.setRefreshing(true);
         } else if (Constants.INVISIBLE == visibility) {
-            new Handler().postDelayed(() -> swipeRefreshLayout.setRefreshing(false), 1000);
+            new Handler().postDelayed(() -> mSwipeRefreshLayout.setRefreshing(false), 1000);
         }
     }
 
@@ -460,7 +460,7 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
     public void onUploadImagesResult(String result, String info, List<String> pictureList) {
         switch (result) {
             case Constants.SUCCESS:
-                taskPresenter.doUpdateTask(taskID, pictureList);
+                mTaskPresenter.doUpdateTask(taskID, pictureList);
                 break;
 
             case Constants.FAILED:
@@ -468,7 +468,7 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
 
                 if (position != -1) {
                     TimelineListAdapter.taskList.get(position).setSendState(Task.FAILED);
-                    adapter.notifyDataSetChanged();
+                    sAdapter.notifyDataSetChanged();
                 }
 
                 UtilBox.showSnackbar(getActivity(), info);
@@ -479,7 +479,7 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
     @Override
     public void onAuditResult(String result, String info) {
         if (Constants.SUCCESS.equals(result)) {
-            ll_audit.setVisibility(View.GONE);
+            sAuditLinearLayout.setVisibility(View.GONE);
 
             auditWindowIsShow = false;
         }
@@ -505,7 +505,7 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
 
                 if (position != -1) {
                     TimelineListAdapter.taskList.get(position).setSendState(Task.SUCCESS);
-                    adapter.notifyDataSetChanged();
+                    sAdapter.notifyDataSetChanged();
                 }
 
                 break;
@@ -515,7 +515,7 @@ public class TimelineFragment extends Fragment implements ITimelineView, IUpload
 
                 if (position != -1) {
                     TimelineListAdapter.taskList.get(position).setSendState(Task.FAILED);
-                    adapter.notifyDataSetChanged();
+                    sAdapter.notifyDataSetChanged();
                 }
                 break;
         }

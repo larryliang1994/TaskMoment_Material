@@ -26,7 +26,7 @@ import java.util.List;
  * 消息列表适配器
  */
 public class NewsAdapter extends BaseAdapter {
-    private Context context;
+    private Context mContext;
     private List<News> newsList;
 
     public NewsAdapter(Context context, List<News> newsList) {
@@ -35,7 +35,7 @@ public class NewsAdapter extends BaseAdapter {
         } else {
             this.newsList = new ArrayList<>();
         }
-        this.context = context;
+        this.mContext = context;
     }
 
     @Override
@@ -59,7 +59,7 @@ public class NewsAdapter extends BaseAdapter {
         ViewHolder holder;
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_news, null);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_news, null);
             holder = new ViewHolder(convertView);
             convertView.setTag(holder);
         } else {
@@ -69,10 +69,10 @@ public class NewsAdapter extends BaseAdapter {
         ((RippleView) convertView.findViewById(R.id.rv_item_news))
                 .setOnRippleCompleteListener(
                         rippleView -> {
-                            Intent intent = new Intent(context, TaskInfoActivity.class);
+                            Intent intent = new Intent(mContext, TaskInfoActivity.class);
                             intent.putExtra("task", newsList.get(position).getTask());
 
-                            context.startActivity(intent);
+                            mContext.startActivity(intent);
                         }
                 );
 

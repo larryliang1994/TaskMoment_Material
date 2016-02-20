@@ -41,11 +41,10 @@ import butterknife.ButterKnife;
 @SuppressLint("InflateParams")
 public class PersonalTimelineAdapter extends BaseAdapter {
     public static ArrayList<Task> taskList;
-    public CommentAdapter commentAdapter;
-    private Context context;
+    private Context mContext;
 
     public PersonalTimelineAdapter(Context context, boolean isRefresh, String response) {
-        this.context = context;
+        this.mContext = context;
 
         if (isRefresh) {
             taskList = new ArrayList<>();
@@ -117,23 +116,23 @@ public class PersonalTimelineAdapter extends BaseAdapter {
     private void setGradeColor(TextView tv_grade, String grade) {
         switch (grade) {
             case "S":
-                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.S));
+                tv_grade.setTextColor(ContextCompat.getColor(mContext, R.color.S));
                 break;
 
             case "A":
-                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.A));
+                tv_grade.setTextColor(ContextCompat.getColor(mContext, R.color.A));
                 break;
 
             case "B":
-                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.B));
+                tv_grade.setTextColor(ContextCompat.getColor(mContext, R.color.B));
                 break;
 
             case "C":
-                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.C));
+                tv_grade.setTextColor(ContextCompat.getColor(mContext, R.color.C));
                 break;
 
             case "D":
-                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.D));
+                tv_grade.setTextColor(ContextCompat.getColor(mContext, R.color.D));
                 break;
         }
     }
@@ -228,7 +227,7 @@ public class PersonalTimelineAdapter extends BaseAdapter {
     public View getView(final int position, View convertView, ViewGroup parent) {
         final ViewHolder holder;
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_timeline, null);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_timeline, null);
             holder = new ViewHolder(convertView);
             convertView.setTag(holder);
         } else {
@@ -236,85 +235,84 @@ public class PersonalTimelineAdapter extends BaseAdapter {
         }
 
         final Task task = taskList.get(position);
-        holder.tv_nickname.setText(task.getNickname());
-        holder.tv_grade.setText(task.getGrade());
-        setGradeColor(holder.tv_grade, task.getGrade());
-        holder.tv_desc.setText(task.getDesc());
+        holder.nicknameTextView.setText(task.getNickname());
+        holder.gradeTextView.setText(task.getGrade());
+        setGradeColor(holder.gradeTextView, task.getGrade());
+        holder.descTextView.setText(task.getDesc());
 
         ImageLoader.getInstance().displayImage(
                 UtilBox.getThumbnailImageName(task.getPortraitUrl(),
-                        UtilBox.dip2px(context, 45),
-                        UtilBox.dip2px(context, 45))
-                        + "?t=" + Config.TIME, holder.iv_portrait);
+                        UtilBox.dip2px(mContext, 45),
+                        UtilBox.dip2px(mContext, 45))
+                        + "?t=" + Config.TIME, holder.portraitImageView);
 
-        holder.iv_portrait.setOnClickListener(v -> {
-            Intent intent = new Intent(context, PersonalTimelineActivity.class);
+        holder.portraitImageView.setOnClickListener(v -> {
+            Intent intent = new Intent(mContext, PersonalTimelineActivity.class);
             intent.putExtra("mid", task.getMid());
-            context.startActivity(intent);
+            mContext.startActivity(intent);
         });
 
-        holder.tv_nickname.setOnClickListener(v -> {
-            Intent intent = new Intent(context, PersonalTimelineActivity.class);
+        holder.nicknameTextView.setOnClickListener(v -> {
+            Intent intent = new Intent(mContext, PersonalTimelineActivity.class);
             intent.putExtra("mid", task.getMid());
-            context.startActivity(intent);
+            mContext.startActivity(intent);
         });
 
-        holder.tv_desc.setOnClickListener(v -> {
-            holder.tv_desc.setBackgroundColor(
-                    ContextCompat.getColor(context, R.color.gray));
+        holder.descTextView.setOnClickListener(v -> {
+            holder.descTextView.setBackgroundColor(
+                    ContextCompat.getColor(mContext, R.color.gray));
 
-            new Handler().postDelayed(() -> holder.tv_desc.setBackgroundColor(
-                    ContextCompat.getColor(context, R.color.transparent)), 100);
+            new Handler().postDelayed(() -> holder.descTextView.setBackgroundColor(
+                    ContextCompat.getColor(mContext, R.color.transparent)), 100);
 
-            Intent intent = new Intent(context, TaskInfoActivity.class);
+            Intent intent = new Intent(mContext, TaskInfoActivity.class);
             intent.putExtra("task", task);
 
-            context.startActivity(intent);
+            mContext.startActivity(intent);
         });
 
         if(task.getPictures() == null || task.getPictures().isEmpty()){
-            holder.gv_picture.setVisibility(View.GONE);
+            holder.pictureGridView.setVisibility(View.GONE);
         } else {
-            holder.gv_picture.setAdapter(new TimelinePictureAdapter(context, task.getPictures()));
-            UtilBox.setGridViewHeightBasedOnChildren(holder.gv_picture, true);
+            holder.pictureGridView.setAdapter(new TimelinePictureAdapter(mContext, task.getPictures()));
+            UtilBox.setGridViewHeightBasedOnChildren(holder.pictureGridView, true);
         }
 
         if (task.getComments() == null || task.getComments().isEmpty()) {
-            holder.lv_comment.setVisibility(View.GONE);
+            holder.commentListView.setVisibility(View.GONE);
         } else {
-            holder.lv_comment.setVisibility(View.VISIBLE);
-            commentAdapter = new CommentAdapter(context, task.getComments(), "personal");
-            holder.lv_comment.setAdapter(commentAdapter);
-            UtilBox.setListViewHeightBasedOnChildren(holder.lv_comment);
+            holder.commentListView.setVisibility(View.VISIBLE);
+            holder.commentListView.setAdapter(new CommentAdapter(mContext, task.getComments(), "personal"));
+            UtilBox.setListViewHeightBasedOnChildren(holder.commentListView);
         }
 
-        holder.btn_comment.setOnClickListener(v ->
-                PersonalTimelineActivity.showCommentWindow(context, task.getId(), "", ""));
+        holder.commentButton.setOnClickListener(v ->
+                PersonalTimelineActivity.showCommentWindow(mContext, task.getId(), "", ""));
 
         if (Config.MID.equals(task.getAuditor()) && "1".equals(task.getAuditResult())) {
-            holder.btn_audit.setOnClickListener(v ->
-                    PersonalTimelineActivity.showAuditWindow(context, task.getId()));
+            holder.auditButton.setOnClickListener(v ->
+                    PersonalTimelineActivity.showAuditWindow(mContext, task.getId()));
         } else {
-            holder.btn_audit.setVisibility(View.GONE);
+            holder.auditButton.setVisibility(View.GONE);
         }
 
-        holder.tv_sendState.setTextColor(Color.parseColor("#767676"));
-        holder.tv_sendState.setText(UtilBox.getDateToString(task.getCreateTime(), UtilBox.DATE_TIME));
+        holder.sendStateTextView.setTextColor(Color.parseColor("#767676"));
+        holder.sendStateTextView.setText(UtilBox.getDateToString(task.getCreateTime(), UtilBox.DATE_TIME));
 
         return convertView;
     }
 
     public static class ViewHolder {
 
-        @Bind(R.id.iv_item_portrait) ImageView iv_portrait;
-        @Bind(R.id.tv_item_nickname) TextView tv_nickname;
-        @Bind(R.id.tv_item_grade) TextView tv_grade;
-        @Bind(R.id.tv_item_desc) TextView tv_desc;
-        @Bind(R.id.gv_item_picture) GridView gv_picture;
-        @Bind(R.id.lv_item_comment) ListView lv_comment;
-        @Bind(R.id.btn_item_comment) Button btn_comment;
-        @Bind(R.id.btn_item_audit) Button btn_audit;
-        @Bind(R.id.tv_sendState) TextView tv_sendState;
+        @Bind(R.id.iv_item_portrait) ImageView portraitImageView;
+        @Bind(R.id.tv_item_nickname) TextView nicknameTextView;
+        @Bind(R.id.tv_item_grade) TextView gradeTextView;
+        @Bind(R.id.tv_item_desc) TextView descTextView;
+        @Bind(R.id.gv_item_picture) GridView pictureGridView;
+        @Bind(R.id.lv_item_comment) ListView commentListView;
+        @Bind(R.id.btn_item_comment) Button commentButton;
+        @Bind(R.id.btn_item_audit) Button auditButton;
+        @Bind(R.id.tv_sendState) TextView sendStateTextView;
 
         public ViewHolder(View itemView) {
             ButterKnife.bind(this, itemView);

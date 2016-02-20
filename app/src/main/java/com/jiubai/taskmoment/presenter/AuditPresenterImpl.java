@@ -17,12 +17,12 @@ import org.json.JSONObject;
  * AuditPresenter实现类
  */
 public class AuditPresenterImpl implements IAuditPresenter {
-    private IAuditView iAuditView;
-    private Context context;
+    private IAuditView mIAuditView;
+    private Context mContext;
 
     public AuditPresenterImpl(Context context, IAuditView iAuditView) {
-        this.context = context;
-        this.iAuditView = iAuditView;
+        this.mContext = context;
+        this.mIAuditView = iAuditView;
     }
 
     @Override
@@ -35,7 +35,7 @@ public class AuditPresenterImpl implements IAuditPresenter {
                     try {
                         JSONObject responseJson = new JSONObject(response);
 
-                        iAuditView.onAuditResult(
+                        mIAuditView.onAuditResult(
                                 responseJson.getString("status"),
                                 responseJson.getString("info"));
 
@@ -49,7 +49,7 @@ public class AuditPresenterImpl implements IAuditPresenter {
                 volleyError -> {
                     volleyError.printStackTrace();
 
-                    iAuditView.onAuditResult(Constants.FAILED, "审核失败，请重试");
+                    mIAuditView.onAuditResult(Constants.FAILED, "审核失败，请重试");
                 });
     }
 }

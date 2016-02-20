@@ -17,7 +17,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.config.Config;
@@ -51,25 +50,32 @@ import me.drakeet.materialdialog.MaterialDialog;
 public class UserInfoFragment extends Fragment implements IUploadImageView, IChangeNicknameView,
         RippleView.OnRippleCompleteListener {
     @Bind(R.id.rv_portrait)
-    RippleView rv_portrait;
-    @Bind(R.id.rv_nickname)
-    RippleView rv_nickname;
-    @Bind(R.id.rv_logout)
-    RippleView rv_logout;
-    @Bind(R.id.rv_publish)
-    RippleView rv_publish;
-    @Bind(R.id.rv_involved)
-    RippleView rv_involved;
-    @Bind(R.id.rv_audit)
-    RippleView rv_audit;
-    @Bind(R.id.iv_portrait)
-    ImageView iv_portrait;
-    @Bind(R.id.tv_nickname)
-    TextView tv_nickname;
+    RippleView mPortraitRippleView;
 
-    private IUploadImagePresenter uploadImagePresenter;
-    private TextView tv_input;
-    private MaterialDialog dialog;
+    @Bind(R.id.rv_nickname)
+    RippleView mNicknameRippleView;
+
+    @Bind(R.id.rv_logout)
+    RippleView mLogoutRippleView;
+
+    @Bind(R.id.rv_publish)
+    RippleView mPublishRippleView;
+
+    @Bind(R.id.rv_involved)
+    RippleView mInvolvedRippleView;
+
+    @Bind(R.id.rv_audit)
+    RippleView mAuditRippleView;
+
+    @Bind(R.id.iv_portrait)
+    ImageView mPortraitImageView;
+
+    @Bind(R.id.tv_nickname)
+    TextView mNicknameTextView;
+
+    private IUploadImagePresenter mUploadImagePresenter;
+    private TextView mInputTextView;
+    private MaterialDialog mDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -86,20 +92,19 @@ public class UserInfoFragment extends Fragment implements IUploadImageView, ICha
      * 初始化界面
      */
     private void initView() {
-        rv_portrait.setOnRippleCompleteListener(this);
-        rv_nickname.setOnRippleCompleteListener(this);
-        rv_logout.setOnRippleCompleteListener(this);
-        rv_publish.setOnRippleCompleteListener(this);
-        rv_involved.setOnRippleCompleteListener(this);
-        rv_audit.setOnRippleCompleteListener(this);
+        mPortraitRippleView.setOnRippleCompleteListener(this);
+        mNicknameRippleView.setOnRippleCompleteListener(this);
+        mLogoutRippleView.setOnRippleCompleteListener(this);
+        mPublishRippleView.setOnRippleCompleteListener(this);
+        mInvolvedRippleView.setOnRippleCompleteListener(this);
+        mAuditRippleView.setOnRippleCompleteListener(this);
 
         ImageLoader.getInstance().displayImage(
                 UtilBox.getThumbnailImageName(Config.PORTRAIT + "?t=" + Config.TIME,
                         UtilBox.dip2px(getActivity(), 36),
-                        UtilBox.dip2px(getActivity(), 36)),
-                iv_portrait);
+                        UtilBox.dip2px(getActivity(), 36)), mPortraitImageView);
 
-        iv_portrait.setOnClickListener(v -> {
+        mPortraitImageView.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), CheckPictureActivity.class);
 
             ArrayList<String> portrait = new ArrayList<>();
@@ -113,9 +118,9 @@ public class UserInfoFragment extends Fragment implements IUploadImageView, ICha
 
         });
 
-        tv_nickname.setText(Config.NICKNAME);
+        mNicknameTextView.setText(Config.NICKNAME);
 
-        uploadImagePresenter = new UploadImagePresenterImpl(getActivity(), this);
+        mUploadImagePresenter = new UploadImagePresenterImpl(getActivity(), this);
     }
 
     @SuppressLint("InflateParams")
@@ -132,7 +137,7 @@ public class UserInfoFragment extends Fragment implements IUploadImageView, ICha
         et_nickname.setInputType(EditorInfo.TYPE_CLASS_TEXT);
         et_nickname.requestFocus();
 
-        dialog = new MaterialDialog(getActivity()).setPositiveButton("完成", v -> {
+        mDialog = new MaterialDialog(getActivity()).setPositiveButton("完成", v -> {
             new Handler().post(() -> {
                 if (!Config.IS_CONNECTED) {
                     UtilBox.showSnackbar(getActivity(), R.string.cant_access_network);
@@ -140,27 +145,27 @@ public class UserInfoFragment extends Fragment implements IUploadImageView, ICha
                 }
 
                 final String newNickname = et_nickname.getText().toString();
-                tv_input = (TextView) contentView.findViewById(R.id.tv_input);
+                mInputTextView = (TextView) contentView.findViewById(R.id.tv_input);
 
                 if (newNickname.isEmpty() || newNickname.length() == 0) {
-                    tv_input.setVisibility(View.VISIBLE);
-                    tv_input.setText("昵称不能为空");
+                    mInputTextView.setVisibility(View.VISIBLE);
+                    mInputTextView.setText("昵称不能为空");
                 } else if (newNickname.getBytes().length > 24) {
-                    tv_input.setVisibility(View.VISIBLE);
-                    tv_input.setText("昵称过长");
+                    mInputTextView.setVisibility(View.VISIBLE);
+                    mInputTextView.setText("昵称过长");
                 } else if (newNickname.equals(nickname)) {
-                    dialog.dismiss();
+                    mDialog.dismiss();
                 } else {
                     new ChangeNicknamePresenterImpl(getActivity(), UserInfoFragment.this)
                             .doChangeNickname(newNickname);
                 }
             });
         });
-        dialog.setNegativeButton("取消", v -> {
-            dialog.dismiss();
+        mDialog.setNegativeButton("取消", v -> {
+            mDialog.dismiss();
         });
 
-        dialog.setContentView(contentView)
+        mDialog.setContentView(contentView)
                 .setCanceledOnTouchOutside(true)
                 .show();
     }
@@ -181,7 +186,7 @@ public class UserInfoFragment extends Fragment implements IUploadImageView, ICha
     public void onEvent(UpdateViewEvent event) {
         switch (event.getAction()) {
             case Constants.ACTION_CHANGE_NICKNAME:
-                tv_nickname.setText(Config.NICKNAME);
+                mNicknameTextView.setText(Config.NICKNAME);
                 break;
         }
     }
@@ -189,10 +194,10 @@ public class UserInfoFragment extends Fragment implements IUploadImageView, ICha
     @Override
     public void onChangeNicknameResult(String result, String info) {
         if (Constants.SUCCESS.equals(result)) {
-            dialog.dismiss();
+            mDialog.dismiss();
         } else {
-            tv_input.setVisibility(View.VISIBLE);
-            tv_input.setText(info);
+            mInputTextView.setVisibility(View.VISIBLE);
+            mInputTextView.setText(info);
         }
     }
 
@@ -261,7 +266,7 @@ public class UserInfoFragment extends Fragment implements IUploadImageView, ICha
                 break;
 
             case R.id.rv_nickname:
-                showNicknameDialog(tv_nickname.getText().toString());
+                showNicknameDialog(mNicknameTextView.getText().toString());
                 break;
 
             case R.id.rv_logout:
@@ -304,7 +309,7 @@ public class UserInfoFragment extends Fragment implements IUploadImageView, ICha
 
                     final String objectName = Config.MID + ".jpg";
 
-                    uploadImagePresenter.doUploadImage(
+                    mUploadImagePresenter.doUploadImage(
                             UtilBox.compressImage(bitmap, Constants.SIZE_PORTRAIT),
                             Constants.DIR_PORTRAIT, objectName, Constants.SP_KEY_PORTRAIT);
                 }
@@ -315,7 +320,7 @@ public class UserInfoFragment extends Fragment implements IUploadImageView, ICha
     @Override
     public void onUploadImageResult(String result, String info) {
         if (Constants.SUCCESS.equals(result)) {
-            ImageLoader.getInstance().displayImage(Config.PORTRAIT + "?t=" + Config.TIME, iv_portrait);
+            ImageLoader.getInstance().displayImage(Config.PORTRAIT + "?t=" + Config.TIME, mPortraitImageView);
         } else {
             UtilBox.showSnackbar(getActivity(), info);
         }

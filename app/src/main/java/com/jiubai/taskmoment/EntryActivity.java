@@ -32,9 +32,9 @@ import butterknife.OnClick;
 public class EntryActivity extends Activity {
 
     @Bind(R.id.ll_no_network)
-    LinearLayout ll_no_network;
+    LinearLayout mNoNetworkLinearLayout;
 
-    private ProgressDialog dialog;
+    private ProgressDialog mDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,9 +73,8 @@ public class EntryActivity extends Activity {
         });
         UmengUpdateAgent.update(this);
 
-
-        dialog = new ProgressDialog(this);
-        dialog.setMessage("连接中...");
+        mDialog = new ProgressDialog(this);
+        mDialog.setMessage("连接中...");
     }
 
     // 进入正式页面
@@ -89,7 +88,7 @@ public class EntryActivity extends Activity {
 
             @Override
             public void onFailure(int i, String s) {
-                ll_no_network.setVisibility(View.VISIBLE);
+                mNoNetworkLinearLayout.setVisibility(View.VISIBLE);
 
                 changeLoadingState("dismiss");
 
@@ -108,7 +107,7 @@ public class EntryActivity extends Activity {
             } else {
                 if (!Config.IS_CONNECTED) {
                     changeLoadingState("dismiss");
-                    ll_no_network.setVisibility(View.VISIBLE);
+                    mNoNetworkLinearLayout.setVisibility(View.VISIBLE);
 
                     UtilBox.showSnackbar(EntryActivity.this, R.string.cant_access_network);
                 } else {
@@ -133,9 +132,9 @@ public class EntryActivity extends Activity {
      */
     private void changeLoadingState(String which) {
         if ("show".equals(which)) {
-            runOnUiThread(dialog::show);
+            runOnUiThread(mDialog::show);
         } else if ("dismiss".equals(which)) {
-            runOnUiThread(dialog::dismiss);
+            runOnUiThread(mDialog::dismiss);
         }
     }
 
@@ -171,7 +170,7 @@ public class EntryActivity extends Activity {
                             overridePendingTransition(R.anim.zoom_in_scale,
                                     R.anim.zoom_out_scale);
                         } else {
-                            ll_no_network.setVisibility(View.VISIBLE);
+                            mNoNetworkLinearLayout.setVisibility(View.VISIBLE);
 
                             UtilBox.showSnackbar(this, object.getString("info"));
                         }
@@ -180,7 +179,7 @@ public class EntryActivity extends Activity {
                     }
                 },
                 volleyError -> {
-                    ll_no_network.setVisibility(View.VISIBLE);
+                    mNoNetworkLinearLayout.setVisibility(View.VISIBLE);
 
                     changeLoadingState("dismiss");
 

@@ -60,35 +60,35 @@ import de.hdodenhof.circleimageview.CircleImageView;
 @SuppressLint("SetTextI18n")
 public class MainActivity extends BaseActivity implements IUploadImageView {
     @Bind(R.id.dw_main)
-    DrawerLayout drawer;
+    DrawerLayout mDrawerLayout;
 
     @Bind(R.id.nv_main)
-    NavigationView nv;
+    NavigationView mNavigationView;
 
     @Bind(R.id.toolbar)
-    Toolbar toolbar;
+    Toolbar mToolbar;
 
     @Bind(R.id.appbar)
-    AppBarLayout appBarLayout;
+    AppBarLayout mAppBarLayout;
 
     @Bind(R.id.collapsingToolbarLayout)
-    CollapsingToolbarLayout collapsingToolbarLayout;
+    CollapsingToolbarLayout mCollapsingToolbarLayout;
 
     @Bind(R.id.iv_companyBackground)
-    ImageView iv_companyBackground;
+    ImageView mCompanyBackgroundImageView;
 
-    private CircleImageView iv_navigation;
-    private TextView tv_nickname;
+    private CircleImageView mNavigationPortraitImageView;
+    private TextView mNicknameTextView;
 
-    private FragmentManager fragmentManager;
+    private FragmentManager mFragmentManager;
     private int currentItem = 0;
-    private IUploadImagePresenter uploadImagePresenter;
+    private IUploadImagePresenter mUploadImagePresenter;
     private Uri imageUri = Constants.TEMP_FILE_LOCATION;
 
-    private TimelineFragment frag_timeline = new TimelineFragment();
-    private MemberFragment frag_member = new MemberFragment();
-    private UserInfoFragment frag_userInfo = new UserInfoFragment();
-    private PreferenceFragment frag_preference = new PreferenceFragment();
+    private TimelineFragment mTimelineFragment = new TimelineFragment();
+    private MemberFragment mMemberFragment = new MemberFragment();
+    private UserInfoFragment mUserInfoFragment = new UserInfoFragment();
+    private PreferenceFragment mPreferenceFragment = new PreferenceFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +113,7 @@ public class MainActivity extends BaseActivity implements IUploadImageView {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_publish:
-                frag_timeline.startActivityForResult(new Intent(this, TaskPublishActivity.class), Constants.CODE_PUBLISH_TASK);
+                mTimelineFragment.startActivityForResult(new Intent(this, TaskPublishActivity.class), Constants.CODE_PUBLISH_TASK);
                 break;
 
             case R.id.action_preference:
@@ -132,11 +132,11 @@ public class MainActivity extends BaseActivity implements IUploadImageView {
      * 初始化界面
      */
     private void initView() {
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbar);
 
         // 默认显示任务圈
-        fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.frag_main, frag_timeline).commit();
+        mFragmentManager = getSupportFragmentManager();
+        mFragmentManager.beginTransaction().replace(R.id.frag_main, mTimelineFragment).commit();
 
         // 设置NavigationView
         initNavigationView();
@@ -145,9 +145,9 @@ public class MainActivity extends BaseActivity implements IUploadImageView {
                 UtilBox.getThumbnailImageName(Config.COMPANY_BACKGROUND,
                         UtilBox.getWidthPixels(this),
                         UtilBox.dip2px(this, 256))
-                        + "?t=" + Config.TIME, iv_companyBackground);
+                        + "?t=" + Config.TIME, mCompanyBackgroundImageView);
 
-        uploadImagePresenter = new UploadImagePresenterImpl(this, this);
+        mUploadImagePresenter = new UploadImagePresenterImpl(this, this);
     }
 
     /**
@@ -155,15 +155,15 @@ public class MainActivity extends BaseActivity implements IUploadImageView {
      */
     private void initNavigationView() {
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+                this, mDrawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        mDrawerLayout.setDrawerListener(toggle);
         toggle.syncState();
 
-        nv.getMenu().getItem(0).setChecked(true);
-        nv.setItemTextColor(ColorStateList.valueOf(Color.parseColor("#212121")));
-        nv.setItemIconTintList(null);
-        nv.setNavigationItemSelectedListener(menuItem -> {
-            drawer.closeDrawer(GravityCompat.START);
+        mNavigationView.getMenu().getItem(0).setChecked(true);
+        mNavigationView.setItemTextColor(ColorStateList.valueOf(Color.parseColor("#212121")));
+        mNavigationView.setItemIconTintList(null);
+        mNavigationView.setNavigationItemSelectedListener(menuItem -> {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
             switch (menuItem.getItemId()) {
                 case R.id.navItem_timeLine:
                     switchFragment(0);
@@ -192,14 +192,14 @@ public class MainActivity extends BaseActivity implements IUploadImageView {
         });
 
         // 设置昵称
-        tv_nickname = (TextView) nv.getHeaderView(0).findViewById(R.id.tv_navigation_nickname);
-        tv_nickname.setText(Config.NICKNAME);
+        mNicknameTextView = (TextView) mNavigationView.getHeaderView(0).findViewById(R.id.tv_navigation_nickname);
+        mNicknameTextView.setText(Config.NICKNAME);
 
         // 获取抽屉的头像
-        iv_navigation = (CircleImageView) nv.getHeaderView(0).findViewById(R.id.iv_navigation);
-        ImageLoader.getInstance().displayImage(Config.PORTRAIT + "?t=" + Config.TIME, iv_navigation);
+        mNavigationPortraitImageView = (CircleImageView) mNavigationView.getHeaderView(0).findViewById(R.id.iv_navigation);
+        ImageLoader.getInstance().displayImage(Config.PORTRAIT + "?t=" + Config.TIME, mNavigationPortraitImageView);
 
-        nv.getHeaderView(0).findViewById(R.id.ll_nvHeader).setBackgroundResource(R.drawable.company_background_2);
+        mNavigationView.getHeaderView(0).findViewById(R.id.ll_nvHeader).setBackgroundResource(R.drawable.company_background_2);
     }
 
     private void switchFragment(int targetItem) {
@@ -207,32 +207,32 @@ public class MainActivity extends BaseActivity implements IUploadImageView {
             return;
         }
 
-        nv.getMenu().getItem(targetItem).setChecked(true);
-        nv.getMenu().getItem(currentItem).setChecked(false);
+        mNavigationView.getMenu().getItem(targetItem).setChecked(true);
+        mNavigationView.getMenu().getItem(currentItem).setChecked(false);
 
         switch (targetItem) {
             case 0:
-                appBarLayout.setExpanded(true, true);
-                collapsingToolbarLayout.setTitle(getResources().getString(R.string.app_name));
-                switchContent(frag_timeline);
+                mAppBarLayout.setExpanded(true, true);
+                mCollapsingToolbarLayout.setTitle(getResources().getString(R.string.app_name));
+                switchContent(mTimelineFragment);
                 break;
 
             case 1:
-                appBarLayout.setExpanded(false, true);
-                collapsingToolbarLayout.setTitle(getResources().getString(R.string.member));
-                switchContent(frag_member);
+                mAppBarLayout.setExpanded(false, true);
+                mCollapsingToolbarLayout.setTitle(getResources().getString(R.string.member));
+                switchContent(mMemberFragment);
                 break;
 
             case 2:
-                appBarLayout.setExpanded(false, true);
-                collapsingToolbarLayout.setTitle(getResources().getString(R.string.userInfo));
-                switchContent(frag_userInfo);
+                mAppBarLayout.setExpanded(false, true);
+                mCollapsingToolbarLayout.setTitle(getResources().getString(R.string.userInfo));
+                switchContent(mUserInfoFragment);
                 break;
 
             case 3:
-                appBarLayout.setExpanded(false, true);
-                collapsingToolbarLayout.setTitle(getResources().getString(R.string.preference));
-                switchContent(frag_preference);
+                mAppBarLayout.setExpanded(false, true);
+                mCollapsingToolbarLayout.setTitle(getResources().getString(R.string.preference));
+                switchContent(mPreferenceFragment);
                 break;
         }
 
@@ -248,24 +248,24 @@ public class MainActivity extends BaseActivity implements IUploadImageView {
         Fragment from = null;
         switch (currentItem) {
             case 0:
-                from = frag_timeline;
+                from = mTimelineFragment;
                 break;
 
             case 1:
-                from = frag_member;
+                from = mMemberFragment;
                 break;
 
             case 2:
-                from = frag_userInfo;
+                from = mUserInfoFragment;
                 break;
 
             case 3:
-                from = frag_preference;
+                from = mPreferenceFragment;
                 break;
         }
 
         @SuppressLint("CommitTransaction")
-        FragmentTransaction transaction = fragmentManager.beginTransaction()
+        FragmentTransaction transaction = mFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.zoom_in, R.anim.zoom_out);
 
         // 先判断是否被add过
@@ -282,7 +282,7 @@ public class MainActivity extends BaseActivity implements IUploadImageView {
         switch (view.getId()) {
 
             case R.id.fab:
-                frag_timeline.startActivityForResult(new Intent(this, TaskPublishActivity.class), Constants.CODE_PUBLISH_TASK);
+                mTimelineFragment.startActivityForResult(new Intent(this, TaskPublishActivity.class), Constants.CODE_PUBLISH_TASK);
                 break;
 
             case R.id.iv_companyBackground:
@@ -335,10 +335,10 @@ public class MainActivity extends BaseActivity implements IUploadImageView {
 
         switch (requestCode) {
             case Constants.CODE_CHANGE_COMPANY:
-                nv.getMenu().getItem(currentItem).setChecked(true);
+                mNavigationView.getMenu().getItem(currentItem).setChecked(true);
                 if (resultCode == RESULT_OK) {
-                    if (drawer.isDrawerOpen(GravityCompat.START)) {
-                        drawer.closeDrawer(GravityCompat.START);
+                    if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                        mDrawerLayout.closeDrawer(GravityCompat.START);
                     }
                     recreate();
                 }
@@ -356,11 +356,11 @@ public class MainActivity extends BaseActivity implements IUploadImageView {
                         try {
                             final Bitmap bitmap = BitmapFactory.decodeStream(
                                     getContentResolver().openInputStream(imageUri));
-                            iv_companyBackground.setImageBitmap(bitmap);
+                            mCompanyBackgroundImageView.setImageBitmap(bitmap);
 
                             final String objectName = Config.CID + ".jpg";
 
-                            uploadImagePresenter.doUploadImage(
+                            mUploadImagePresenter.doUploadImage(
                                     UtilBox.compressImage(bitmap, Constants.SIZE_COMPANY_BACKGROUND),
                                     Constants.DIR_BACKGROUND, objectName,
                                     Constants.SP_KEY_COMPANY_BACKGROUND);
@@ -389,14 +389,14 @@ public class MainActivity extends BaseActivity implements IUploadImageView {
     public void onEvent(UpdateViewEvent event){
         switch(event.getAction()){
             case Constants.ACTION_CHANGE_NICKNAME:
-                tv_nickname.setText(Config.NICKNAME);
-                nv.refreshDrawableState();
+                mNicknameTextView.setText(Config.NICKNAME);
+                mNavigationView.refreshDrawableState();
                 break;
 
             case Constants.ACTION_CHANGE_PORTRAIT:
                 ImageLoader.getInstance().displayImage(
-                        Config.PORTRAIT + "?t=" + Config.TIME, iv_navigation);
-                nv.refreshDrawableState();
+                        Config.PORTRAIT + "?t=" + Config.TIME, mNavigationPortraitImageView);
+                mNavigationView.refreshDrawableState();
                 break;
         }
     }
@@ -405,14 +405,14 @@ public class MainActivity extends BaseActivity implements IUploadImageView {
         if (keyCode == KeyEvent.KEYCODE_BACK
                 && event.getAction() == KeyEvent.ACTION_DOWN) {
 
-            if (drawer.isDrawerOpen(GravityCompat.START)) {
-                drawer.closeDrawer(GravityCompat.START);
+            if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                mDrawerLayout.closeDrawer(GravityCompat.START);
             } else if (currentItem == 0 && TimelineFragment.commentWindowIsShow) {
-                TimelineFragment.ll_comment.setVisibility(View.GONE);
+                TimelineFragment.sCommentLinearLayout.setVisibility(View.GONE);
                 TimelineFragment.commentWindowIsShow = false;
-                UtilBox.toggleSoftInput(TimelineFragment.ll_comment, false);
+                UtilBox.toggleSoftInput(TimelineFragment.sCommentLinearLayout, false);
             } else if ((currentItem == 0 && TimelineFragment.auditWindowIsShow)) {
-                TimelineFragment.ll_audit.setVisibility(View.GONE);
+                TimelineFragment.sAuditLinearLayout.setVisibility(View.GONE);
                 TimelineFragment.auditWindowIsShow = false;
             } else if (currentItem != 0) {
                 switchFragment(0);
@@ -435,7 +435,7 @@ public class MainActivity extends BaseActivity implements IUploadImageView {
         }
 
         ImageLoader.getInstance().displayImage(
-                Config.COMPANY_BACKGROUND + "?t=" + Config.TIME, iv_companyBackground);
+                Config.COMPANY_BACKGROUND + "?t=" + Config.TIME, mCompanyBackgroundImageView);
     }
 
     @Override

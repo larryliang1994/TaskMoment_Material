@@ -17,6 +17,8 @@ import com.jiubai.taskmoment.ui.activity.CheckPictureActivity;
 
 import java.util.ArrayList;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import me.nereo.multi_image_selector.MultiImageSelectorActivity;
 
 /**
@@ -24,11 +26,11 @@ import me.nereo.multi_image_selector.MultiImageSelectorActivity;
  */
 public class PublishPictureAdapter extends BaseAdapter {
     public ArrayList<String> pictureList;
-    private Context context;
+    private Context mContext;
     public int actualCount = 0;
 
     public PublishPictureAdapter(Context context, ArrayList<String> pictureList) {
-        this.context = context;
+        this.mContext = context;
         this.pictureList = pictureList;
         this.pictureList.clear();
         actualCount = this.pictureList.size();
@@ -74,7 +76,7 @@ public class PublishPictureAdapter extends BaseAdapter {
     public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_picture_small, null);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_picture_small, null);
 
             holder = new ViewHolder(convertView);
 
@@ -85,9 +87,9 @@ public class PublishPictureAdapter extends BaseAdapter {
 
         // 最后一项点击可以添加照片
         if (actualCount < 9 && position == getCount() - 1) {
-            holder.iv_picture.setImageResource(R.drawable.add_picture);
-            holder.iv_picture.setOnClickListener(v -> {
-                Intent intent = new Intent(context, MultiImageSelectorActivity.class);
+            holder.pictureImageView.setImageResource(R.drawable.add_picture);
+            holder.pictureImageView.setOnClickListener(v -> {
+                Intent intent = new Intent(mContext, MultiImageSelectorActivity.class);
 
                 // 是否显示调用相机拍照
                 intent.putExtra(MultiImageSelectorActivity.EXTRA_SHOW_CAMERA, true);
@@ -108,14 +110,14 @@ public class PublishPictureAdapter extends BaseAdapter {
                     intent.putExtra(MultiImageSelectorActivity.EXTRA_DEFAULT_SELECTED_LIST, list);
                 }
 
-                ((Activity) context).startActivityForResult(
+                ((Activity) mContext).startActivityForResult(
                         intent, Constants.CODE_MULTIPLE_PICTURE);
             });
         } else {
-            holder.iv_picture.setImageBitmap(UtilBox.getLocalBitmap(pictureList.get(position),
-                    UtilBox.dip2px(context, 60), UtilBox.dip2px(context, 60)));
-            holder.iv_picture.setOnClickListener(v -> {
-                Intent intent = new Intent(context, CheckPictureActivity.class);
+            holder.pictureImageView.setImageBitmap(UtilBox.getLocalBitmap(pictureList.get(position),
+                    UtilBox.dip2px(mContext, 60), UtilBox.dip2px(mContext, 60)));
+            holder.pictureImageView.setOnClickListener(v -> {
+                Intent intent = new Intent(mContext, CheckPictureActivity.class);
 
                 ArrayList<String> list = new ArrayList<>(pictureList);
                 list.remove(list.size() - 1);
@@ -124,9 +126,9 @@ public class PublishPictureAdapter extends BaseAdapter {
                 intent.putExtra("index", position);
                 intent.putExtra("fromWhere", "local");
 
-                ((Activity) context).startActivityForResult(
+                ((Activity) mContext).startActivityForResult(
                         intent, Constants.CODE_CHECK_PICTURE);
-                ((Activity) context).overridePendingTransition(
+                ((Activity) mContext).overridePendingTransition(
                         R.anim.zoom_in_quick, R.anim.scale_stay);
             });
         }
@@ -134,11 +136,11 @@ public class PublishPictureAdapter extends BaseAdapter {
         return convertView;
     }
 
-    private class ViewHolder {
-        ImageView iv_picture;
+    public class ViewHolder {
+        @Bind(R.id.iv_picture) ImageView pictureImageView;
 
         public ViewHolder(View view) {
-            iv_picture = (ImageView) view.findViewById(R.id.iv_picture);
+            ButterKnife.bind(this, view);
         }
     }
 }

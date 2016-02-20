@@ -19,17 +19,17 @@ import org.json.JSONObject;
  * LoginPresenter实现类
  */
 public class LoginPresenterImpl implements ILoginPresenter {
-    private ILoginView iLoginView;
+    private ILoginView mILoginView;
 
     public LoginPresenterImpl(ILoginView iLoginView) {
-        this.iLoginView = iLoginView;
+        this.mILoginView = iLoginView;
     }
 
     @Override
     public void doLogin(final String phoneNum, final String verifyCode) {
         new Handler().post(() -> {
 
-            iLoginView.onSetRotateLoadingVisibility(Constants.VISIBLE);
+            mILoginView.onSetRotateLoadingVisibility(Constants.VISIBLE);
 
             final String[] soapKey = {"type", "table_name", "feedback_url", "return"};
             final String[] soapValue = {"mobile_login", Config.RANDOM, "", "1"};
@@ -38,7 +38,7 @@ public class LoginPresenterImpl implements ILoginPresenter {
 
             VolleyUtil.requestWithSoap(soapKey, soapValue, httpKey, httpValue,
                     response -> {
-                        iLoginView.onSetRotateLoadingVisibility(Constants.INVISIBLE);
+                        mILoginView.onSetRotateLoadingVisibility(Constants.INVISIBLE);
 
                         new Thread(() -> {
                             Looper.prepare();
@@ -48,10 +48,10 @@ public class LoginPresenterImpl implements ILoginPresenter {
                                 if (Constants.SUCCESS.equals(responseJson.getString("status"))) {
                                     handleLoginResponse(responseJson.getString("memberCookie"));
 
-                                    iLoginView.onLoginResult(true,
+                                    mILoginView.onLoginResult(true,
                                             responseJson.getString("info"));
                                 } else {
-                                    iLoginView.onLoginResult(false,
+                                    mILoginView.onLoginResult(false,
                                             responseJson.getString("info"));
                                 }
 
@@ -62,9 +62,9 @@ public class LoginPresenterImpl implements ILoginPresenter {
                         }).start();
                     },
                     volleyError -> {
-                        iLoginView.onSetRotateLoadingVisibility(Constants.INVISIBLE);
+                        mILoginView.onSetRotateLoadingVisibility(Constants.INVISIBLE);
 
-                        iLoginView.onLoginResult(false, "登录失败，请重试");
+                        mILoginView.onLoginResult(false, "登录失败，请重试");
                     });
 
         });
@@ -94,6 +94,6 @@ public class LoginPresenterImpl implements ILoginPresenter {
 
     @Override
     public void onSetRotateLoadingVisibility(int visibility) {
-        iLoginView.onSetRotateLoadingVisibility(visibility);
+        mILoginView.onSetRotateLoadingVisibility(visibility);
     }
 }

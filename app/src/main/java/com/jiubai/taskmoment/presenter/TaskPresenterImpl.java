@@ -23,10 +23,10 @@ import java.util.List;
  * TaskPresenter实现类
  */
 public class TaskPresenterImpl implements ITaskPresenter {
-    private ITaskView iTaskView;
+    private ITaskView mITaskView;
 
     public TaskPresenterImpl(ITaskView iTaskView) {
-        this.iTaskView = iTaskView;
+        this.mITaskView = iTaskView;
     }
 
     @Override
@@ -57,9 +57,9 @@ public class TaskPresenterImpl implements ITaskPresenter {
                         String status = responseJson.getString("status");
 
                         if (!Constants.SUCCESS.equals(status)) {
-                            iTaskView.onPublishTaskResult(status, responseJson.getString("info"));
+                            mITaskView.onPublishTaskResult(status, responseJson.getString("info"));
                         } else {
-                            iTaskView.onPublishTaskResult(Constants.SUCCESS, responseJson.getString("taskid"));
+                            mITaskView.onPublishTaskResult(Constants.SUCCESS, responseJson.getString("taskid"));
                         }
 
                     } catch (JSONException e) {
@@ -69,7 +69,7 @@ public class TaskPresenterImpl implements ITaskPresenter {
                 volleyError -> {
                     volleyError.printStackTrace();
 
-                    iTaskView.onPublishTaskResult(Constants.FAILED, "发布失败，请重试");
+                    mITaskView.onPublishTaskResult(Constants.FAILED, "发布失败，请重试");
                 });
     }
 
@@ -86,13 +86,13 @@ public class TaskPresenterImpl implements ITaskPresenter {
 
                         String status = responseJson.getString("status");
                         if (!Constants.SUCCESS.equals(status)) {
-                            iTaskView.onUpdateTaskResult(status, responseJson.getString("info"));
+                            mITaskView.onUpdateTaskResult(status, responseJson.getString("info"));
                         } else {
                             // TODO 都要清空还是只这里清空？
                             // 清空缓存的图片列表
                             TimelineFragment.pictureList = null;
 
-                            iTaskView.onUpdateTaskResult(Constants.SUCCESS, "");
+                            mITaskView.onUpdateTaskResult(Constants.SUCCESS, "");
                         }
 
                     } catch (JSONException e) {
@@ -102,7 +102,7 @@ public class TaskPresenterImpl implements ITaskPresenter {
                 volleyError -> {
                     volleyError.printStackTrace();
 
-                    iTaskView.onUpdateTaskResult(Constants.FAILED, "图片上传失败，请重试");
+                    mITaskView.onUpdateTaskResult(Constants.FAILED, "图片上传失败，请重试");
                 });
     }
 
@@ -122,9 +122,9 @@ public class TaskPresenterImpl implements ITaskPresenter {
                             EventBus.getDefault().post(
                                     new UpdateViewEvent(Constants.ACTION_DELETE_TASK, taskID));
 
-                            iTaskView.onDeleteTaskResult(status, "");
+                            mITaskView.onDeleteTaskResult(status, "");
                         } else {
-                            iTaskView.onDeleteTaskResult(status, jsonObject.getString("info"));
+                            mITaskView.onDeleteTaskResult(status, jsonObject.getString("info"));
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -133,7 +133,7 @@ public class TaskPresenterImpl implements ITaskPresenter {
                 volleyError -> {
                     volleyError.printStackTrace();
 
-                    iTaskView.onDeleteTaskResult(Constants.FAILED, "删除失败，请重试");
+                    mITaskView.onDeleteTaskResult(Constants.FAILED, "删除失败，请重试");
                 });
     }
 }

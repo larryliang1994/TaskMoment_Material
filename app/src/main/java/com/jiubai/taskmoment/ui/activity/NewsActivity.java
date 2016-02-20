@@ -27,7 +27,7 @@ import butterknife.OnClick;
  */
 public class NewsActivity extends BaseActivity {
     @Bind(R.id.toolbar)
-    Toolbar toolbar;
+    Toolbar mToolbar;
 
     @Bind(R.id.lv_news)
     ListView lv;
@@ -64,8 +64,8 @@ public class NewsActivity extends BaseActivity {
     }
 
     private void initToolbar() {
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationOnClickListener(v -> {
+        setSupportActionBar(mToolbar);
+        mToolbar.setNavigationOnClickListener(v -> {
             finish();
         });
     }

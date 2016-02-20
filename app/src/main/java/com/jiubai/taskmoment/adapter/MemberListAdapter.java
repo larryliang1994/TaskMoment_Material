@@ -35,13 +35,13 @@ import me.drakeet.materialdialog.MaterialDialog;
 
 public class MemberListAdapter extends BaseAdapter {
     public static List<Member> memberList;
-    private Context context;
-    private ListView listView;
+    private Context mContext;
+    private ListView mListView;
 
     public MemberListAdapter(Context context, String memberInfo, ListView listView) {
         try {
-            this.context = context;
-            this.listView = listView;
+            this.mContext = context;
+            this.mListView = listView;
 
             memberList = new ArrayList<>();
 
@@ -88,7 +88,7 @@ public class MemberListAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
         if (convertView == null){
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_body_member, parent, false);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_body_member, parent, false);
             holder = new ViewHolder(convertView);
             convertView.setTag(holder);
         } else {
@@ -98,19 +98,19 @@ public class MemberListAdapter extends BaseAdapter {
         final Member member = memberList.get(position);
 
         if (!Config.COMPANY_CREATOR.equals(Config.MID)) {
-            holder.btn.setVisibility(View.GONE);
+            holder.deleteButton.setVisibility(View.GONE);
         } else {
-            holder.btn.setOnClickListener(v -> {
+            holder.deleteButton.setOnClickListener(v -> {
                 if (Config.COMPANY_CREATOR.equals(member.getMid())) {
-                    UtilBox.showSnackbar(context, "不能移除公司创建者");
+                    UtilBox.showSnackbar(mContext, "不能移除公司创建者");
                     return;
                 }
 
-                final MaterialDialog dialog = new MaterialDialog(context);
+                final MaterialDialog dialog = new MaterialDialog(mContext);
                 dialog.setMessage("真的要移除该成员吗？")
                         .setPositiveButton("真的", v1 -> {
                             if (!Config.IS_CONNECTED) {
-                                UtilBox.showSnackbar(context, R.string.cant_access_network);
+                                UtilBox.showSnackbar(mContext, R.string.cant_access_network);
                                 return;
                             }
 
@@ -121,7 +121,7 @@ public class MemberListAdapter extends BaseAdapter {
 
                             VolleyUtil.requestWithCookie(Urls.DELETE_MEMBER, key, value,
                                     response -> deleteCheck(position, response),
-                                    volleyError -> UtilBox.showSnackbar(context, "删除失败，请重试"));
+                                    volleyError -> UtilBox.showSnackbar(mContext, "删除失败，请重试"));
                         })
                         .setNegativeButton("我手滑了", v1 -> {
                             dialog.dismiss();
@@ -131,18 +131,18 @@ public class MemberListAdapter extends BaseAdapter {
             });
         }
 
-        holder.rv.setOnRippleCompleteListener(rippleView -> {
-            Intent intent = new Intent(context, PersonalTimelineActivity.class);
+        holder.bodyRippleView.setOnRippleCompleteListener(rippleView -> {
+            Intent intent = new Intent(mContext, PersonalTimelineActivity.class);
             intent.putExtra("mid", member.getMid());
-            context.startActivity(intent);
+            mContext.startActivity(intent);
         });
 
-        holder.tv_nickname.setText(member.getName());
+        holder.nicknameTextView.setText(member.getName());
         ImageLoader.getInstance().displayImage(
                 UtilBox.getThumbnailImageName(Urls.MEDIA_CENTER_PORTRAIT + member.getMid() + ".jpg",
-                        UtilBox.dip2px(context, 45),
-                        UtilBox.dip2px(context, 45))
-                        + "?t=" + Config.TIME, holder.iv);
+                        UtilBox.dip2px(mContext, 45),
+                        UtilBox.dip2px(mContext, 45))
+                        + "?t=" + Config.TIME, holder.portraitImageView);
 
         return convertView;
     }
@@ -246,9 +246,9 @@ public class MemberListAdapter extends BaseAdapter {
 
                 notifyDataSetChanged();
 
-                UtilBox.setListViewHeightBasedOnChildren(listView);
+                UtilBox.setListViewHeightBasedOnChildren(mListView);
             } else {
-                UtilBox.showSnackbar(context, json.getString("info"));
+                UtilBox.showSnackbar(mContext, json.getString("info"));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -257,10 +257,10 @@ public class MemberListAdapter extends BaseAdapter {
 
     public class ViewHolder {
 
-        @Bind(R.id.iv_item_body_member) ImageView iv;
-        @Bind(R.id.rv_item_body_member) RippleView rv;
-        @Bind(R.id.tv_nickname) TextView tv_nickname;
-        @Bind(R.id.btn_item_body_member) Button btn;
+        @Bind(R.id.iv_item_body_member) ImageView portraitImageView;
+        @Bind(R.id.rv_item_body_member) RippleView bodyRippleView;
+        @Bind(R.id.tv_nickname) TextView nicknameTextView;
+        @Bind(R.id.btn_item_body_member) Button deleteButton;
 
         public ViewHolder(View itemView) {
             ButterKnife.bind(this, itemView);

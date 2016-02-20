@@ -21,12 +21,12 @@ import org.json.JSONObject;
  * ChangeNicknamePresenter实现类
  */
 public class ChangeNicknamePresenterImpl implements IChangeNicknamePresenter{
-    private IChangeNicknameView iChangeNicknameView;
-    private Context context;
+    private IChangeNicknameView mIChangeNicknameView;
+    private Context mContext;
 
     public ChangeNicknamePresenterImpl(Context context, IChangeNicknameView iChangeNicknameView) {
-        this.context = context;
-        this.iChangeNicknameView = iChangeNicknameView;
+        this.mContext = context;
+        this.mIChangeNicknameView = iChangeNicknameView;
     }
 
     @Override
@@ -51,11 +51,11 @@ public class ChangeNicknamePresenterImpl implements IChangeNicknamePresenter{
                                     Constants.SP_KEY_NICKNAME, newNickname);
                             editor.apply();
 
-                            iChangeNicknameView.onChangeNicknameResult(status, newNickname);
+                            mIChangeNicknameView.onChangeNicknameResult(status, newNickname);
                         } else {
                             String info = responseObject.getString("info");
 
-                            iChangeNicknameView.onChangeNicknameResult(status, info);
+                            mIChangeNicknameView.onChangeNicknameResult(status, info);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -64,7 +64,7 @@ public class ChangeNicknamePresenterImpl implements IChangeNicknamePresenter{
                 volleyError -> {
                     volleyError.printStackTrace();
 
-                    iChangeNicknameView.onChangeNicknameResult(Constants.FAILED, "修改失败，请重试");
+                    mIChangeNicknameView.onChangeNicknameResult(Constants.FAILED, "修改失败，请重试");
                 });
     }
 }

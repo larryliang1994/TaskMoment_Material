@@ -37,10 +37,10 @@ import uk.co.senab.photoview.PhotoView;
 public class CheckPictureActivity extends BaseActivity {
 
     @Bind(R.id.vp_checkPicture)
-    ViewPager vp;
+    ViewPager mViewPager;
 
     @Bind(R.id.toolbar)
-    Toolbar toolbar;
+    Toolbar mToolbar;
 
     private int index = 0;
     private ArrayList<String> pictureList;
@@ -88,13 +88,13 @@ public class CheckPictureActivity extends BaseActivity {
 
                             hasChange = true;
 
-                            int currentItem = vp.getCurrentItem();
+                            int currentItem = mViewPager.getCurrentItem();
 
                             pictureList.remove(currentItem);
 
                             if (pictureList.size() != 0) {
-                                vp.setAdapter(new SamplePagerAdapter());
-                                vp.setCurrentItem(currentItem - 1);
+                                mViewPager.setAdapter(new SamplePagerAdapter());
+                                mViewPager.setCurrentItem(currentItem - 1);
                             } else {
                                 if (hasChange) {
                                     Intent intent = new Intent();
@@ -124,20 +124,20 @@ public class CheckPictureActivity extends BaseActivity {
     private void initView() {
         initToolbar();
 
-        vp.setOffscreenPageLimit(1);
-        vp.setAdapter(new SamplePagerAdapter());
-        vp.setCurrentItem(index, true);
+        mViewPager.setOffscreenPageLimit(1);
+        mViewPager.setAdapter(new SamplePagerAdapter());
+        mViewPager.setCurrentItem(index, true);
     }
 
     private void initToolbar() {
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbar);
         if ("net".equals(fromWhere)) {
             //noinspection ConstantConditions
             getSupportActionBar().hide();
             //requestWindowFeature(Window.FEATURE_NO_TITLE);
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
-        toolbar.setNavigationOnClickListener(v -> {
+        mToolbar.setNavigationOnClickListener(v -> {
             if (hasChange) {
                 Intent intent = new Intent();
                 intent.putExtra("pictureList", pictureList);

@@ -41,8 +41,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class TimelineListAdapter extends RecyclerView.Adapter {
     public static ArrayList<Task> taskList = new ArrayList<>();
-    public CommentAdapter commentAdapter;
-    private Context context;
+    private Context mContext;
     private IUploadImagePresenter uploadImagePresenter;
 
     private final int VIEW_ITEM = 1;
@@ -53,7 +52,7 @@ public class TimelineListAdapter extends RecyclerView.Adapter {
 
     public TimelineListAdapter(Context context, boolean isRefresh, String response,
                                IUploadImagePresenter uploadImagePresenter, RecyclerView recyclerView) {
-        this.context = context;
+        this.mContext = context;
 
         if (isRefresh) {
             taskList = new ArrayList<>();
@@ -141,85 +140,84 @@ public class TimelineListAdapter extends RecyclerView.Adapter {
         ViewHolder holder = (ViewHolder) viewHolder;
 
         final Task task = taskList.get(position);
-        holder.tv_nickname.setText(task.getNickname());
-        holder.tv_grade.setText(task.getGrade());
-        setGradeColor(holder.tv_grade, task.getGrade());
-        holder.tv_desc.setText(task.getDesc());
+        holder.nicknameTextView.setText(task.getNickname());
+        holder.gradeTextView.setText(task.getGrade());
+        setGradeColor(holder.gradeTextView, task.getGrade());
+        holder.descTextView.setText(task.getDesc());
 
         ImageLoader.getInstance().displayImage(
                 UtilBox.getThumbnailImageName(task.getPortraitUrl(),
-                        UtilBox.dip2px(context, 45),
-                        UtilBox.dip2px(context, 45))
-                        + "?t=" + Config.TIME, holder.iv_portrait);
+                        UtilBox.dip2px(mContext, 45),
+                        UtilBox.dip2px(mContext, 45))
+                        + "?t=" + Config.TIME, holder.portraitImageView);
 
-        holder.iv_portrait.setOnClickListener(v -> {
-            Intent intent = new Intent(context, PersonalTimelineActivity.class);
+        holder.portraitImageView.setOnClickListener(v -> {
+            Intent intent = new Intent(mContext, PersonalTimelineActivity.class);
             intent.putExtra("mid", task.getMid());
-            context.startActivity(intent);
+            mContext.startActivity(intent);
         });
 
-        holder.tv_nickname.setOnClickListener(v -> {
-            Intent intent = new Intent(context, PersonalTimelineActivity.class);
+        holder.nicknameTextView.setOnClickListener(v -> {
+            Intent intent = new Intent(mContext, PersonalTimelineActivity.class);
             intent.putExtra("mid", task.getMid());
-            context.startActivity(intent);
+            mContext.startActivity(intent);
         });
 
-        holder.tv_desc.setOnClickListener(v -> {
-            holder.tv_desc.setBackgroundColor(
-                    ContextCompat.getColor(context, R.color.gray));
+        holder.descTextView.setOnClickListener(v -> {
+            holder.descTextView.setBackgroundColor(
+                    ContextCompat.getColor(mContext, R.color.gray));
 
-            new Handler().postDelayed(() -> holder.tv_desc.setBackgroundColor(
-                    ContextCompat.getColor(context, R.color.transparent)), 100);
+            new Handler().postDelayed(() -> holder.descTextView.setBackgroundColor(
+                    ContextCompat.getColor(mContext, R.color.transparent)), 100);
 
-            Intent intent = new Intent(context, TaskInfoActivity.class);
+            Intent intent = new Intent(mContext, TaskInfoActivity.class);
             intent.putExtra("task", task);
             intent.putExtra("taskPosition", position);
 
-            context.startActivity(intent);
+            mContext.startActivity(intent);
         });
 
         if (task.getPictures() != null && !task.getPictures().isEmpty()) {
-            holder.gv_picture.setAdapter(new TimelinePictureAdapter(context, task.getPictures()));
-            UtilBox.setGridViewHeightBasedOnChildren(holder.gv_picture, true);
+            holder.pictureGridView.setAdapter(new TimelinePictureAdapter(mContext, task.getPictures()));
+            UtilBox.setGridViewHeightBasedOnChildren(holder.pictureGridView, true);
         } else {
-            holder.gv_picture.setVisibility(View.GONE);
+            holder.pictureGridView.setVisibility(View.GONE);
         }
 
         if (task.getComments() == null || task.getComments().isEmpty()) {
-            holder.lv_comment.setVisibility(View.GONE);
+            holder.commentListView.setVisibility(View.GONE);
         } else {
-            holder.lv_comment.setVisibility(View.VISIBLE);
-            commentAdapter = new CommentAdapter(context, task.getComments(), "timeline");
-            holder.lv_comment.setAdapter(commentAdapter);
-            UtilBox.setListViewHeightBasedOnChildren(holder.lv_comment);
+            holder.commentListView.setVisibility(View.VISIBLE);
+            holder.commentListView.setAdapter(new CommentAdapter(mContext, task.getComments(), "timeline"));
+            UtilBox.setListViewHeightBasedOnChildren(holder.commentListView);
         }
 
-        holder.btn_comment.setOnClickListener(v ->
-                TimelineFragment.showCommentWindow(context, task.getId(), "", ""));
+        holder.commentButton.setOnClickListener(v ->
+                TimelineFragment.showCommentWindow(mContext, task.getId(), "", ""));
 
         if (Config.MID.equals(task.getAuditor()) && "1".equals(task.getAuditResult())) {
-            holder.btn_audit.setOnClickListener(v -> TimelineFragment.showAuditWindow(context, task.getId()));
+            holder.auditButton.setOnClickListener(v -> TimelineFragment.showAuditWindow(mContext, task.getId()));
         } else {
-            holder.btn_audit.setVisibility(View.GONE);
+            holder.auditButton.setVisibility(View.GONE);
         }
 
         switch (task.getSendState()) {
             case Task.SUCCESS:
-                holder.tv_sendState.setTextColor(Color.parseColor("#767676"));
-                holder.tv_sendState.setText(UtilBox.getDateToString(task.getCreateTime(), UtilBox.DATE_TIME));
+                holder.sendStateTextView.setTextColor(Color.parseColor("#767676"));
+                holder.sendStateTextView.setText(UtilBox.getDateToString(task.getCreateTime(), UtilBox.DATE_TIME));
                 break;
 
             case Task.SENDING:
-                holder.tv_sendState.setTextColor(ContextCompat.getColor(context, R.color.clickableText));
-                holder.tv_sendState.setText("发送中...");
+                holder.sendStateTextView.setTextColor(ContextCompat.getColor(mContext, R.color.clickableText));
+                holder.sendStateTextView.setText("发送中...");
                 break;
 
             case Task.FAILED:
-                holder.tv_sendState.setTextColor(ContextCompat.getColor(context, R.color.clickableText));
-                holder.tv_sendState.setText("重新发送");
-                holder.tv_sendState.setOnClickListener(v -> {
+                holder.sendStateTextView.setTextColor(ContextCompat.getColor(mContext, R.color.clickableText));
+                holder.sendStateTextView.setText("重新发送");
+                holder.sendStateTextView.setOnClickListener(v -> {
                     taskList.get(position).setSendState(Task.SENDING);
-                    holder.tv_sendState.setText("发送中...");
+                    holder.sendStateTextView.setText("发送中...");
 
                     if (uploadImagePresenter != null) {
                         uploadImagePresenter.doUploadImages(TimelineFragment.pictureList, Constants.DIR_TASK);
@@ -243,23 +241,23 @@ public class TimelineListAdapter extends RecyclerView.Adapter {
     private void setGradeColor(TextView tv_grade, String grade) {
         switch (grade) {
             case "S":
-                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.S));
+                tv_grade.setTextColor(ContextCompat.getColor(mContext, R.color.S));
                 break;
 
             case "A":
-                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.A));
+                tv_grade.setTextColor(ContextCompat.getColor(mContext, R.color.A));
                 break;
 
             case "B":
-                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.B));
+                tv_grade.setTextColor(ContextCompat.getColor(mContext, R.color.B));
                 break;
 
             case "C":
-                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.C));
+                tv_grade.setTextColor(ContextCompat.getColor(mContext, R.color.C));
                 break;
 
             case "D":
-                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.D));
+                tv_grade.setTextColor(ContextCompat.getColor(mContext, R.color.D));
                 break;
         }
     }
@@ -398,15 +396,15 @@ public class TimelineListAdapter extends RecyclerView.Adapter {
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        @Bind(R.id.iv_item_portrait) CircleImageView iv_portrait;
-        @Bind(R.id.tv_item_nickname) TextView tv_nickname;
-        @Bind(R.id.tv_item_grade) TextView tv_grade;
-        @Bind(R.id.tv_item_desc) TextView tv_desc;
-        @Bind(R.id.gv_item_picture) GridView gv_picture;
-        @Bind(R.id.lv_item_comment) ListView lv_comment;
-        @Bind(R.id.btn_item_comment) Button btn_comment;
-        @Bind(R.id.btn_item_audit) Button btn_audit;
-        @Bind(R.id.tv_sendState) TextView tv_sendState;
+        @Bind(R.id.iv_item_portrait) CircleImageView portraitImageView;
+        @Bind(R.id.tv_item_nickname) TextView nicknameTextView;
+        @Bind(R.id.tv_item_grade) TextView gradeTextView;
+        @Bind(R.id.tv_item_desc) TextView descTextView;
+        @Bind(R.id.gv_item_picture) GridView pictureGridView;
+        @Bind(R.id.lv_item_comment) ListView commentListView;
+        @Bind(R.id.btn_item_comment) Button commentButton;
+        @Bind(R.id.btn_item_audit) Button auditButton;
+        @Bind(R.id.tv_sendState) TextView sendStateTextView;
 
         public ViewHolder(View itemView) {
             super(itemView);

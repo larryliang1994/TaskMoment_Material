@@ -21,10 +21,10 @@ import java.util.ArrayList;
  * TimelinePresenter实现类
  */
 public class TimelinePresenterImpl implements ITimelinePresenter {
-    private ITimelineView iTimelineView;
+    private ITimelineView mITimelineView;
 
     public TimelinePresenterImpl(ITimelineView iTimelineView) {
-        this.iTimelineView = iTimelineView;
+        this.mITimelineView = iTimelineView;
     }
 
     @Override
@@ -35,7 +35,7 @@ public class TimelinePresenterImpl implements ITimelinePresenter {
     @Override
     public void doPullTimeline(String request_time, final String type, String mid, String isAudit, String isInvolved) {
         if ("refresh".equals(type)) {
-            iTimelineView.onSetSwipeRefreshVisibility(Constants.VISIBLE);
+            mITimelineView.onSetSwipeRefreshVisibility(Constants.VISIBLE);
         }
 
         String[] key = {"len", "cid", "create_time", "mid", "shenhe", "canyu"};
@@ -52,17 +52,17 @@ public class TimelinePresenterImpl implements ITimelinePresenter {
 
                         if (Constants.SUCCESS.equals(responseStatus)) {
 
-                            iTimelineView.onPullTimelineResult(Constants.SUCCESS, type, response);
+                            mITimelineView.onPullTimelineResult(Constants.SUCCESS, type, response);
 
                         } else {
-                            iTimelineView.onPullTimelineResult(responseStatus, type,
+                            mITimelineView.onPullTimelineResult(responseStatus, type,
                                     responseJson.getString("info"));
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 },
-                volleyError -> iTimelineView.onPullTimelineResult(Constants.FAILED, type, "刷新失败，请重试")
+                volleyError -> mITimelineView.onPullTimelineResult(Constants.FAILED, type, "刷新失败，请重试")
 
         );
     }
@@ -73,7 +73,7 @@ public class TimelinePresenterImpl implements ITimelinePresenter {
 
         JSONObject contentJson = new JSONObject(msgJson.getString("content"));
 
-        iTimelineView.onGetNewsResult(1, new News(
+        mITimelineView.onGetNewsResult(1, new News(
                 msgJson.getString("mid"),
                 decodeTask(msgJson.getString("task")),
                 contentJson.getString("title"),
@@ -191,6 +191,6 @@ public class TimelinePresenterImpl implements ITimelinePresenter {
 
     @Override
     public void onSetSwipeRefreshVisibility(int visibility) {
-        iTimelineView.onSetSwipeRefreshVisibility(visibility);
+        mITimelineView.onSetSwipeRefreshVisibility(visibility);
     }
 }

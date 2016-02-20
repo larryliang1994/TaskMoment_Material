@@ -24,11 +24,11 @@ import me.drakeet.materialdialog.MaterialDialog;
  * 偏好设置
  */
 public class PreferenceFragment extends Fragment implements RippleView.OnRippleCompleteListener{
-    @Bind(R.id.rv_companyInfo) RippleView rv_companyInfo;
-    @Bind(R.id.rv_share) RippleView rv_share;
-    @Bind(R.id.rv_update) RippleView rv_update;
-    @Bind(R.id.rv_about) RippleView rv_about;
-    @Bind(R.id.rv_exit) RippleView rv_exit;
+    @Bind(R.id.rv_companyInfo) RippleView mCompanyInfoRippleView;
+    @Bind(R.id.rv_share) RippleView mShareRippleView;
+    @Bind(R.id.rv_update) RippleView mUpdateRippleView;
+    @Bind(R.id.rv_about) RippleView mAboutRippleView;
+    @Bind(R.id.rv_exit) RippleView mExitRippleView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -42,11 +42,11 @@ public class PreferenceFragment extends Fragment implements RippleView.OnRippleC
     }
 
     private void initView(){
-        rv_companyInfo.setOnRippleCompleteListener(this);
-        rv_share.setOnRippleCompleteListener(this);
-        rv_update.setOnRippleCompleteListener(this);
-        rv_about.setOnRippleCompleteListener(this);
-        rv_exit.setOnRippleCompleteListener(this);
+        mCompanyInfoRippleView.setOnRippleCompleteListener(this);
+        mShareRippleView.setOnRippleCompleteListener(this);
+        mUpdateRippleView.setOnRippleCompleteListener(this);
+        mAboutRippleView.setOnRippleCompleteListener(this);
+        mExitRippleView.setOnRippleCompleteListener(this);
     }
 
     @Override

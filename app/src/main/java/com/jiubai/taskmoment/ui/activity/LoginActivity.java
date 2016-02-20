@@ -36,27 +36,27 @@ import butterknife.ButterKnife;
 public class LoginActivity extends BaseActivity implements ILoginView, IGetVerifyCodeView, TextWatcher,
         RippleView.OnRippleCompleteListener, View.OnClickListener {
     @Bind(R.id.edt_telephone)
-    EditText edt_telephone;
+    EditText mTelephoneEditText;
 
     @Bind(R.id.edt_verifyCode)
-    EditText edt_verifyCode;
+    EditText mVerifyCodeEditText;
 
     @Bind(R.id.btn_getVerifyCode)
-    Button btn_getVerifyCode;
+    Button mGetVerifyCodeButton;
 
     @Bind(R.id.btn_login)
-    Button btn_login;
+    Button mLoginButton;
 
     @Bind(R.id.rv_login)
-    RippleView rv_login;
+    RippleView mLoginRippleView;
 
     @Bind(R.id.toolbar)
-    Toolbar toolbar;
+    Toolbar mToolbar;
 
-    private boolean isCounting = false;
-    private ILoginPresenter loginPresenter;
-    private IGetVerifyCodePresenter getVerifyCodePresenter;
-    private ProgressDialog progressDialog;
+    private boolean sIsCounting = false;
+    private ILoginPresenter mLoginPresenter;
+    private IGetVerifyCodePresenter mGetVerifyCodePresenter;
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,42 +73,42 @@ public class LoginActivity extends BaseActivity implements ILoginView, IGetVerif
      * 初始化界面
      */
     private void initView() {
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbar);
 
-        edt_telephone.addTextChangedListener(this);
-        edt_verifyCode.addTextChangedListener(this);
+        mTelephoneEditText.addTextChangedListener(this);
+        mVerifyCodeEditText.addTextChangedListener(this);
 
         setGetVerifyCodeBtnEnable(false);
         setLoginBtnEnable(false);
 
-        getVerifyCodePresenter = new GetVerifyCodePresenterImpl(this);
-        loginPresenter = new LoginPresenterImpl(this);
+        mGetVerifyCodePresenter = new GetVerifyCodePresenterImpl(this);
+        mLoginPresenter = new LoginPresenterImpl(this);
 
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("请稍候...");
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setMessage("请稍候...");
 
-        btn_login.setFocusable(true);
-        btn_login.setFocusableInTouchMode(true);
-        btn_login.requestFocus();
+        mLoginButton.setFocusable(true);
+        mLoginButton.setFocusableInTouchMode(true);
+        mLoginButton.requestFocus();
     }
 
     private void setGetVerifyCodeBtnEnable(boolean enable) {
         if (enable) {
-            btn_getVerifyCode.setOnClickListener(this);
-            btn_getVerifyCode.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
+            mGetVerifyCodeButton.setOnClickListener(this);
+            mGetVerifyCodeButton.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
         } else {
-            btn_getVerifyCode.setOnClickListener(null);
-            btn_getVerifyCode.setTextColor(ContextCompat.getColor(this, R.color.gray));
+            mGetVerifyCodeButton.setOnClickListener(null);
+            mGetVerifyCodeButton.setTextColor(ContextCompat.getColor(this, R.color.gray));
         }
     }
 
     private void setLoginBtnEnable(boolean enable) {
         if (enable) {
-            rv_login.setOnRippleCompleteListener(this);
-            btn_login.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
+            mLoginRippleView.setOnRippleCompleteListener(this);
+            mLoginButton.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
         } else {
-            rv_login.setOnRippleCompleteListener(null);
-            btn_login.setBackgroundColor(ContextCompat.getColor(this, R.color.gray));
+            mLoginRippleView.setOnRippleCompleteListener(null);
+            mLoginButton.setBackgroundColor(ContextCompat.getColor(this, R.color.gray));
         }
     }
 
@@ -121,14 +121,14 @@ public class LoginActivity extends BaseActivity implements ILoginView, IGetVerif
      */
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        String content = edt_telephone.getText().toString();
+        String content = mTelephoneEditText.getText().toString();
 
         if (UtilBox.isTelephoneNumber(content)) {
-            if (!isCounting) {
+            if (!sIsCounting) {
                 setGetVerifyCodeBtnEnable(true);
             }
 
-            if (edt_verifyCode.getText().toString().length() == 6) {
+            if (mVerifyCodeEditText.getText().toString().length() == 6) {
                 setLoginBtnEnable(true);
             } else {
                 setLoginBtnEnable(false);
@@ -150,9 +150,9 @@ public class LoginActivity extends BaseActivity implements ILoginView, IGetVerif
             return;
         }
 
-        getVerifyCodePresenter.doGetVerifyCode(edt_telephone.getText().toString());
+        mGetVerifyCodePresenter.doGetVerifyCode(mTelephoneEditText.getText().toString());
 
-        UtilBox.toggleSoftInput(edt_telephone, false);
+        UtilBox.toggleSoftInput(mTelephoneEditText, false);
     }
 
     @Override
@@ -163,10 +163,10 @@ public class LoginActivity extends BaseActivity implements ILoginView, IGetVerif
             return;
         }
 
-        loginPresenter.doLogin(edt_telephone.getText().toString(),
-                edt_verifyCode.getText().toString());
+        mLoginPresenter.doLogin(mTelephoneEditText.getText().toString(),
+                mVerifyCodeEditText.getText().toString());
 
-        UtilBox.toggleSoftInput(edt_verifyCode, false);
+        UtilBox.toggleSoftInput(mVerifyCodeEditText, false);
     }
 
     /**
@@ -210,7 +210,7 @@ public class LoginActivity extends BaseActivity implements ILoginView, IGetVerif
     public void onUpdateView() {
         // 注册短信变化监听
         SmsContentUtil smsContent = new SmsContentUtil(LoginActivity.this,
-                new Handler(), edt_verifyCode);
+                new Handler(), mVerifyCodeEditText);
         LoginActivity.this.getContentResolver().registerContentObserver(
                 Uri.parse("content://sms/"), true, smsContent);
 
@@ -225,9 +225,9 @@ public class LoginActivity extends BaseActivity implements ILoginView, IGetVerif
     @Override
     public void onSetRotateLoadingVisibility(int visibility) {
         if (visibility == Constants.VISIBLE) {
-            runOnUiThread(progressDialog::show);
+            runOnUiThread(mProgressDialog::show);
         } else if (visibility == Constants.INVISIBLE) {
-            runOnUiThread(progressDialog::dismiss);
+            runOnUiThread(mProgressDialog::dismiss);
         }
     }
 
@@ -255,26 +255,26 @@ public class LoginActivity extends BaseActivity implements ILoginView, IGetVerif
         // 计时完毕时触发
         @Override
         public void onFinish() {
-            isCounting = false;
+            sIsCounting = false;
             runOnUiThread(() -> {
                 setGetVerifyCodeBtnEnable(true);
 
-                btn_getVerifyCode.setText("重新发送");
+                mGetVerifyCodeButton.setText("重新发送");
 
-                edt_telephone.addTextChangedListener(LoginActivity.this);
+                mTelephoneEditText.addTextChangedListener(LoginActivity.this);
             });
         }
 
         // 计时过程显示
         @Override
         public void onTick(final long millisUntilFinished) {
-            isCounting = true;
+            sIsCounting = true;
             runOnUiThread(() -> {
                 setGetVerifyCodeBtnEnable(false);
 
-                btn_getVerifyCode.setText("重新发送(" + millisUntilFinished / 1000 + ")");
+                mGetVerifyCodeButton.setText("重新发送(" + millisUntilFinished / 1000 + ")");
 
-                edt_telephone.removeTextChangedListener(LoginActivity.this);
+                mTelephoneEditText.removeTextChangedListener(LoginActivity.this);
             });
         }
     }

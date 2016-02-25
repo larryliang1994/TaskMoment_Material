@@ -51,21 +51,9 @@ public class Constants {
     public static final String ACTION_CHANGE_BACKGROUND = "com.jiubai.action.change_background";
 
     public static final Uri TEMP_FILE_LOCATION = Uri.fromFile(UtilBox.getTempFilePath("temp0.jpg"));
-    public static final int SIZE_COMPANY_BACKGROUND = 500;
+    public static final int SIZE_COMPANY_BACKGROUND = 1000;
     public static final int SIZE_TASK_IMAGE = 300;
-    public static final int SIZE_PORTRAIT = 100;
-
-    public static final String APP_ID_WX = "1";
-    public static final String APP_SECRET_WX = "1";
-    public static final String APP_ID_QQ = "1";
-    public static final String APP_KEY_QQ = "1";
-    public static final String APP_ID_REN = "1";
-    public static final String APP_KEY_REN = "1";
-    public static final String APP_SECRET_REN = "1";
-
-    public static final int IMAGETYPE_BACKGROUND = 0;
-    public static final int IMAGETYPE_TASK = 1;
-    public static final int IMAGETYPE_PORTRAIT = 2;
+    public static final int SIZE_PORTRAIT = 500;
 
     public static final int VISIBLE = 1;
     public static final int INVISIBLE = 0;

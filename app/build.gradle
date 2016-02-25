@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId "com.jiubai.taskmoment"
         minSdkVersion 14
-        targetSdkVersion 23
+        targetSdkVersion 22
         versionCode 1002
         versionName "1.8.2"
     }
@@ -81,8 +81,8 @@ dependencies {
     compile files('src/main/jniLibs/Volley.jar')
     compile files('src/main/jniLibs/pushservice-4.5.1.8.jar')
     compile files('src/main/jniLibs/com.umeng.message.lib_v2.5.0.jar')
-    compile 'com.android.support:design:23.1.1'
-    compile 'com.android.support:cardview-v7:23.1.1'
+    compile 'com.android.support:design:23.2.0'
+    compile 'com.android.support:cardview-v7:23.2.0'
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     compile 'me.drakeet.materialdialog:library:1.2.2'
